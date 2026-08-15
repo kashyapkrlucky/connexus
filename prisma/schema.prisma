@@ -1,0 +1,192 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model comment_votes {
+  id        String    @id
+  commentId String
+  userId    String
+  value     VoteValue
+  createdAt DateTime  @default(now())
+  comments  comments  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  users     users     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([commentId, userId])
+}
+
+model comments {
+  id             String          @id
+  content        String
+  postId         String
+  authorId       String
+  parentId       String?
+  score          Int             @default(0)
+  createdAt      DateTime        @default(now())
+  comment_votes  comment_votes[]
+  users          users           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments       comments?       @relation("commentsTocomments", fields: [parentId], references: [id], onDelete: Cascade)
+  other_comments comments[]      @relation("commentsTocomments")
+  posts          posts           @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([authorId])
+  @@index([parentId])
+  @@index([postId])
+}
+
+model communities {
+  id                            String                          @id
+  name                          String
+  slug                          String                          @unique
+  description                   String
+  visibility                    CommunityVisibility             @default(PUBLIC)
+  iconUrl                       String?
+  bannerUrl                     String?
+  ownerId                       String
+  createdAt                     DateTime                        @default(now())
+  users                         users                           @relation(fields: [ownerId], references: [id])
+  community_analytics_snapshots community_analytics_snapshots[]
+  community_bans                community_bans[]
+  community_guidelines          community_guidelines[]
+  community_members             community_members[]
+  posts                         posts[]
+
+  @@index([visibility])
+}
+
+model community_analytics_snapshots {
+  id             String      @id
+  communityId    String
+  date           DateTime
+  memberCount    Int
+  postCount      Int
+  totalUpvotes   Int
+  totalDownvotes Int
+  totalViews     Int
+  createdAt      DateTime    @default(now())
+  communities    communities @relation(fields: [communityId], references: [id], onDelete: Cascade)
+
+  @@unique([communityId, date])
+}
+
+model community_bans {
+  id                                     String      @id
+  communityId                            String
+  userId                                 String
+  bannedById                             String
+  reason                                 String?
+  createdAt                              DateTime    @default(now())
+  users_community_bans_bannedByIdTousers users       @relation("community_bans_bannedByIdTousers", fields: [bannedById], references: [id])
+  communities                            communities @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  users_community_bans_userIdTousers     users       @relation("community_bans_userIdTousers", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([communityId, userId])
+}
+
+model community_guidelines {
+  id          String      @id
+  communityId String
+  order       Int
+  title       String
+  body        String
+  createdAt   DateTime    @default(now())
+  communities communities @relation(fields: [communityId], references: [id], onDelete: Cascade)
+
+  @@index([communityId])
+}
+
+model community_members {
+  id                                         String        @id
+  communityId                                String
+  userId                                     String
+  role                                       CommunityRole @default(MEMBER)
+  invitedById                                String?
+  joinedAt                                   DateTime      @default(now())
+  communities                                communities   @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  users_community_members_invitedByIdTousers users?        @relation("community_members_invitedByIdTousers", fields: [invitedById], references: [id])
+  users_community_members_userIdTousers      users         @relation("community_members_userIdTousers", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([communityId, userId])
+  @@index([userId])
+}
+
+model posts {
+  id          String      @id
+  title       String
+  content     String?
+  imageUrl    String?
+  type        PostType    @default(TEXT)
+  communityId String
+  authorId    String
+  viewCount   Int         @default(0)
+  shareCount  Int         @default(0)
+  score       Int         @default(0)
+  hotScore    Float       @default(0)
+  createdAt   DateTime    @default(now())
+  comments    comments[]
+  users       users       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  communities communities @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  votes       votes[]
+
+  @@index([authorId])
+  @@index([communityId])
+  @@index([createdAt])
+  @@index([hotScore])
+  @@index([score])
+  @@index([viewCount])
+}
+
+model users {
+  id                                                     String              @id
+  username                                               String              @unique
+  displayName                                            String
+  avatarUrl                                              String?
+  bio                                                    String?
+  createdAt                                              DateTime            @default(now())
+  comment_votes                                          comment_votes[]
+  comments                                               comments[]
+  communities                                            communities[]
+  community_bans_community_bans_bannedByIdTousers        community_bans[]    @relation("community_bans_bannedByIdTousers")
+  community_bans_community_bans_userIdTousers            community_bans[]    @relation("community_bans_userIdTousers")
+  community_members_community_members_invitedByIdTousers community_members[] @relation("community_members_invitedByIdTousers")
+  community_members_community_members_userIdTousers      community_members[] @relation("community_members_userIdTousers")
+  posts                                                  posts[]
+  votes                                                  votes[]
+}
+
+model votes {
+  id        String    @id
+  postId    String
+  userId    String
+  value     VoteValue
+  createdAt DateTime  @default(now())
+  posts     posts     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  users     users     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+}
+
+enum CommunityRole {
+  OWNER
+  MODERATOR
+  MEMBER
+}
+
+enum CommunityVisibility {
+  PUBLIC
+  PRIVATE
+}
+
+enum PostType {
+  TEXT
+  IMAGE
+}
+
+enum VoteValue {
+  UP
+  DOWN
+}
