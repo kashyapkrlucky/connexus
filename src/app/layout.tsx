@@ -13,12 +13,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Connexus",
-  description: "Communities, without the baggage.",
+  title: "connexus - Communities, built for real connections.",
+  description: "Communities, built for real connections.",
   icons: {
-    icon: "/icon-2.jpg",
-    shortcut: "/icon-2.jpg",
-    apple: "/icon-2.jpg",
+    icon: "/icon.png",
+    shortcut: "/icon.png",
+    apple: "/icon.png",
   },
 };
 

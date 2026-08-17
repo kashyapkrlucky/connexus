@@ -16,6 +16,8 @@ import useAuthStore from "@/features/auth/store/useAuthStore";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import PageLoader from "@/shared/components/ui/PageLoader";
+import { Post } from "@/features/home/types";
+import { PostCard } from "@/features/home/components/PostCard";
 
 export default function Home() {
   const { memberships, getMemberships, topCommunities, getTopCommunities } = useHomeStore();
@@ -34,7 +36,24 @@ export default function Home() {
   }, []);
 
 
-   const { getUserData, isAuthenticated, loading } = useAuthStore();
+  const posts: Post[] = [{
+    id: "1",
+    community: {
+      id: "1",
+      name: "Community 1",
+      slug: "community-1",
+    },
+    title: "Title 1",
+    content: "Content 1",
+    createdAt: "2022-01-01",
+    author: {
+      id: "1",
+      name: "Author 1",
+      avatar: "https://via.placeholder.com/150",
+    },
+  }];
+
+  const { getUserData, isAuthenticated, loading } = useAuthStore();
   const [isOAuthChecked, setIsOAuthChecked] = useState(false);
 
   const router = useRouter();
@@ -78,9 +97,9 @@ export default function Home() {
       <TopBar />
 
       <div className="mx-auto flex w-full max-w-7xl flex-1">
-        <SideBar className="p-4">
+        <SideBar>
 
-          <div className="rounded-2xl border border-gray-700 bg-gray-900 p-3">
+          <div className="p-4">
             <h2 className="mb-2 flex items-center gap-1.5 px-1 text-xs font-semibold uppercase tracking-wide text-gray-400">
               <Compass className="size-3.5" /> Your communities
             </h2>
@@ -92,7 +111,7 @@ export default function Home() {
                   <li key={m.id}>
                     <Link
                       href={`/c/${m.community.slug}`}
-                      className="flex items-center gap-2 rounded-xl px-2 py-1.5 text-sm text-gray-300 transition-colors hover:bg-gray-800"
+                      className="flex items-center gap-2 rounded-xl py-1.5 text-sm text-gray-300 transition-colors hover:bg-gray-800"
                     >
                       <Avatar name={m.community.name} src={m.community.iconUrl} size={22} />
                       <span className="truncate">c/{m.community.slug}</span>
@@ -107,6 +126,9 @@ export default function Home() {
         <main className="flex flex-1 flex-col p-4 gap-4 ">
           <Tabs items={TABS} value={sort} onChange={(v) => setSort(v as PostSort)} />
 
+          {posts.map((post) => (
+            <PostCard key={post.id} post={post} />
+          ))}
 
         </main>
 

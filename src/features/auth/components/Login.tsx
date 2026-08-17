@@ -1,4 +1,4 @@
-
+"use client"
 import { useState } from "react";
 import { Modal } from "@/shared/components/layout/Modal";
 import { LoginActions } from "./LoginActions";

@@ -11,3 +11,22 @@ export type PostSort = (typeof POST_SORTS)[number];
 
 export const HOME_FEED_SCOPE = "home";
 export const COMMUNITY_FEED_SCOPE = "community";
+
+export interface Post {
+    id: string;
+    community: {
+        id: string;
+        name: string;
+        slug: string;
+    };
+    title: string;
+    content: string;
+    imageUrl?: string;
+    createdAt: string;
+    tags?: string[];
+    author: {
+        id: string;
+        name: string;
+        avatar: string;
+    };
+}

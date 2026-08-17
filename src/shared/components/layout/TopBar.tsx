@@ -1,3 +1,4 @@
+"use client"
 import Image from "next/image";
 import { Login } from "@/features/auth/components/Login";
 import { PenSquareIcon, PlusIcon } from "lucide-react";
@@ -7,18 +8,20 @@ import { UserMenu } from "@/features/auth/components/UserMenu";
 
 export function TopBar() {
 
-  const { user, logout } = useAuthStore();
+  const { user } = useAuthStore();
   return (
     <header className="flex h-14 w-full shrink-0 items-center border-b border-border/40 bg-surface">
       <div className="mx-auto flex w-full max-w-7xl items-center gap-4 px-4">
-        <Image
-          className="h-8 w-32"
-          src="/logo-2.jpg"
-          alt="Next.js logo"
-          width={120}
-          height={34}
-          priority
-        />
+        <Link href="/">
+          <Image
+            className="h-11 w-32"
+            src="/logo.png"
+            alt="Connexus logo"
+            width={120}
+            height={38}
+            priority
+          />
+        </Link>
 
         <input
           type="search"
@@ -27,14 +30,12 @@ export function TopBar() {
         />
 
         <div className="ml-auto flex items-center gap-2">
-
-
           {user ? <>
             <Link
-              href="/submit"
-              className="hidden items-center gap-1.5 rounded-lg bg-cyan-500 px-2.5 py-1 text-sm font-medium text-white shadow-sm shadow-cyan-500/20 transition-all hover:bg-cyan-600 hover:shadow-cyan-500/30 active:scale-[0.97] sm:inline-flex"
+              href="/create"
+              className="hidden items-center gap-1.5 rounded-lg bg-cyan-400 px-2.5 py-1 text-sm font-medium text-white shadow-sm shadow-cyan-500/20 transition-all hover:bg-cyan-600 hover:shadow-cyan-500/30 active:scale-[0.97] sm:inline-flex"
             >
-              <PenSquareIcon className="size-4" /> New post
+              <PenSquareIcon className="size-4" /> Create
             </Link>
 
             <Link

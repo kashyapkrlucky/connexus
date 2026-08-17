@@ -16,6 +16,7 @@ export const useHomeStore = create<HomeStore>((set) => ({
             memberships: [{
                 id: "1",
                 community: {
+                    id: "1",
                     name: "Community 1",
                     slug: "community-1",
                     iconUrl: "/com.jpeg"

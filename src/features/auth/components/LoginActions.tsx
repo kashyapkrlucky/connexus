@@ -6,7 +6,7 @@ import { toast } from "sonner";
 
 export function LoginActions() {
 
-    const { user, logout, onGuestLogin, isGuestLoading } = useAuthStore();
+    const { onGuestLogin, isGuestLoading } = useAuthStore();
     const [isAtlasRedirecting, setIsAtlasRedirecting] = useState(false);
     const router = useRouter();
     const handleGuestLogin = async () => {
