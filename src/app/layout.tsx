@@ -16,9 +16,9 @@ export const metadata: Metadata = {
   title: "Connexus",
   description: "Communities, without the baggage.",
   icons: {
-    icon: "/icon.jpeg",
-    shortcut: "/icon.jpeg",
-    apple: "/icon.jpeg",
+    icon: "/icon-2.jpg",
+    shortcut: "/icon-2.jpg",
+    apple: "/icon-2.jpg",
   },
 };
 
