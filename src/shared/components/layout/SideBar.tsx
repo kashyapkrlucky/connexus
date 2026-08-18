@@ -1,66 +1,106 @@
-import { CompassIcon, FlameIcon, HomeIcon } from "lucide-react";
+"use client";
+
+import { CompassIcon, FlameIcon, HomeIcon, PlusIcon, UsersIcon, type LucideIcon } from "lucide-react";
 import Link from "next/link";
-import { useEffect } from "react";
+import { usePathname } from "next/navigation";
+import { useEffect, type ReactNode } from "react";
 import { useHomeStore } from "@/features/home/store/useHomeStore";
 import { Avatar } from "../ui/Avatar";
+import { cn } from "@/shared/utils/cn";
 
 interface SideBarProps {
-  children?: React.ReactNode;
+  children?: ReactNode;
   className?: string;
 }
 
-export function SideBar({ children, className }: SideBarProps) {
-  const links = [
-    { label: "Home", href: "/", icon: <HomeIcon className="h-5 w-5 text-gray-400" /> },
-    { label: "Explore", href: "/explore", icon: <CompassIcon className="h-5 w-5 text-gray-400" /> },
-    { label: "Popular", href: "/popular", icon: <FlameIcon className="h-5 w-5 text-gray-400" /> },
-  ];
+interface NavLink {
+  label: string;
+  href: string;
+  icon: LucideIcon;
+}
 
+const NAV_LINKS: NavLink[] = [
+  { label: "Home", href: "/", icon: HomeIcon },
+  { label: "Explore", href: "/explore", icon: CompassIcon },
+  { label: "Popular", href: "/popular", icon: FlameIcon },
+];
+
+export function SideBar({ children, className }: SideBarProps) {
+  const pathname = usePathname();
   const { memberships, getMemberships } = useHomeStore();
 
   useEffect(() => {
     getMemberships();
   }, [getMemberships]);
 
-
   return (
-    <aside
-      className={`h-full w-72 shrink-0 border-r border-border/40 ${className ?? ""}`}
-    >
-      <div className="flex flex-col gap-2 p-4 border-b border-gray-800">
-        {links.map((link: { label: string; href: string; icon: React.ReactNode }) => (
-          <Link
-            key={link.href}
-            href={link.href}
-            className="flex items-center gap-2 rounded-lg p-2 transition-colors hover:bg-muted text-sm text-gray-400 hover:text-white"
-          >
-            {link.icon}
-            {link.label}
-          </Link>
-        ))}
-      </div>
+    <aside className={cn("h-full w-72 shrink-0 space-y-3 border-r border-border/40 p-3", className)}>
+      <nav className="rounded-2xl border border-gray-700 bg-gray-900 p-2">
+        {NAV_LINKS.map((link) => {
+          const isActive = pathname === link.href;
+          const Icon = link.icon;
+          return (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={cn(
+                "flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium transition-colors",
+                isActive ? "bg-brand-500/15 text-brand-400" : "text-gray-400 hover:bg-gray-800 hover:text-gray-100"
+              )}
+            >
+              <Icon className="size-4" />
+              {link.label}
+            </Link>
+          );
+        })}
+      </nav>
+
       <div className="rounded-2xl border border-gray-700 bg-gray-900 p-3">
-        <h2 className="mb-2 flex items-center gap-1.5 px-1 text-xs font-semibold uppercase tracking-wide text-gray-400">
-          <CompassIcon className="size-3.5" /> Your communities
-        </h2>
+        <div className="mb-2 flex items-center justify-between gap-2 px-1">
+          <h2 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-400">
+            <UsersIcon className="size-3.5" /> My Communities
+          </h2>
+          <Link
+            href="/create-community"
+            aria-label="Create community"
+            className="flex shrink-0 items-center justify-center rounded-full p-1 text-gray-400 transition-colors hover:bg-gray-800 hover:text-brand-400"
+          >
+            <PlusIcon className="size-4" />
+          </Link>
+        </div>
         {memberships.length === 0 ? (
-          <p className="px-1 text-sm text-gray-500">You haven&apos;t joined any yet.</p>
+          <div className="px-1 py-2 text-center">
+            <p className="text-sm text-gray-500">You haven&apos;t joined any communities yet.</p>
+            <Link
+              href="/explore"
+              className="mt-1.5 inline-block text-xs font-medium text-brand-400 hover:text-brand-300"
+            >
+              Explore communities
+            </Link>
+          </div>
         ) : (
           <ul className="space-y-0.5">
-            {memberships.map((m) => (
-              <li key={m.id}>
-                <Link
-                  href={`/c/${m.slug}`}
-                  className="flex items-center gap-2 rounded-xl px-2 py-1.5 text-sm text-gray-300 transition-colors hover:bg-gray-800"
-                >
-                  <Avatar name={m.name} src={m.iconUrl} size={22} />
-                  <span className="truncate">c/{m.slug}</span>
-                </Link>
-              </li>
-            ))}
+            {memberships.map((m) => {
+              const isActive = pathname === `/c/${m.slug}`;
+              return (
+                <li key={m.id}>
+                  <Link
+                    href={`/c/${m.slug}`}
+                    className={cn(
+                      "flex items-center gap-2 rounded-xl px-2 py-1.5 text-sm transition-colors",
+                      isActive ? "bg-gray-800 text-gray-100" : "text-gray-300 hover:bg-gray-800"
+                    )}
+                  >
+                    <Avatar name={m.name} src={m.iconUrl} size={22} />
+                    <span className="truncate">c/{m.slug}</span>
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>
+
       {children}
     </aside>
   );

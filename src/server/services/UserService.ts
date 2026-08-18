@@ -1,9 +1,10 @@
 import { IUser } from "@/features/auth/types";
 import { prisma } from "@/infra/db/connect";
 import { UpdateProfileInput } from "../schemas/user.schema";
-import { UserProfileDTO } from "../types/user.types";
+import { UserProfileDTO, UserScoreDTO } from "../types/user.types";
 import { UserSummary } from "../types/common.types";
 import { ApiError } from "../utils/response";
+import { getRankForXp, XP_WEIGHTS } from "../utils/rank";
 
 export class UserService {
     static async create(user: IUser) {
@@ -65,6 +66,29 @@ export class UserService {
             displayName: u.displayName,
             avatarUrl: u.avatarUrl,
         }));
+    }
+
+    static async getScore(userId: string): Promise<UserScoreDTO> {
+        const [postCount, commentCount, communityCount, postVoteCount, commentVoteCount] = await Promise.all([
+            prisma.posts.count({ where: { authorId: userId } }),
+            prisma.comments.count({ where: { authorId: userId } }),
+            prisma.communities.count({ where: { ownerId: userId } }),
+            prisma.votes.count({ where: { userId } }),
+            prisma.comment_votes.count({ where: { userId } }),
+        ]);
+
+        const voteCount = postVoteCount + commentVoteCount;
+        const xp =
+            postCount * XP_WEIGHTS.post +
+            commentCount * XP_WEIGHTS.comment +
+            communityCount * XP_WEIGHTS.communityCreated +
+            voteCount * XP_WEIGHTS.vote;
+
+        return {
+            xp,
+            breakdown: { postCount, commentCount, communityCount, voteCount },
+            rank: getRankForXp(xp),
+        };
     }
 
     static async updateProfile(userId: string, input: UpdateProfileInput): Promise<UserProfileDTO> {

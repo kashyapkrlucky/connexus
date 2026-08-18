@@ -16,6 +16,10 @@ export interface CommunitySummaryDTO {
   viewerRole: CommunityRole | null;
 }
 
+export interface TrendingCommunityDTO extends CommunitySummaryDTO {
+  postsToday: number;
+}
+
 export interface CommunityGuidelineDTO {
   id: string;
   order: number;

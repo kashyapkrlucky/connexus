@@ -22,3 +22,23 @@ export interface UserProfileDTO {
   };
   communities: UserProfileCommunityDTO[];
 }
+
+export interface UserRankDTO {
+  name: string;
+  color: string;
+  level: number;
+  minXp: number;
+  nextRank: { name: string; minXp: number } | null;
+  progress: number;
+}
+
+export interface UserScoreDTO {
+  xp: number;
+  breakdown: {
+    postCount: number;
+    commentCount: number;
+    communityCount: number;
+    voteCount: number;
+  };
+  rank: UserRankDTO;
+}

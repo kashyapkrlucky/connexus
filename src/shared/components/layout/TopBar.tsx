@@ -1,7 +1,7 @@
 "use client"
 import Image from "next/image";
 import { Login } from "@/features/auth/components/Login";
-import { PenSquareIcon, PlusIcon } from "lucide-react";
+import { PenSquareIcon } from "lucide-react";
 import Link from "next/link";
 import useAuthStore from "@/features/auth/store/useAuthStore";
 import { UserMenu } from "@/features/auth/components/UserMenu";
@@ -10,7 +10,7 @@ export function TopBar() {
 
   const { user } = useAuthStore();
   return (
-    <header className="flex h-14 w-full shrink-0 items-center border-b border-border/40 bg-surface">
+    <header className="flex h-14 w-full shrink-0 items-center border-b border-border/40 bg-surface sticky top-0 z-50">
       <div className="mx-auto flex w-full max-w-7xl items-center gap-4 px-4">
         <Link href="/">
           <Image
@@ -36,13 +36,6 @@ export function TopBar() {
               className="hidden items-center gap-1.5 rounded-lg bg-brand-500 px-2.5 py-1 text-sm font-medium text-white shadow-sm shadow-brand-500/20 transition-all hover:bg-brand-600 hover:shadow-brand-600/30 active:scale-[0.97] sm:inline-flex"
             >
               <PenSquareIcon className="size-4" /> Create
-            </Link>
-
-            <Link
-              href="/create-community"
-              className="hidden items-center gap-1.5 rounded-lg border border-gray-700 bg-gray-900 px-2.5 py-1 text-sm font-medium text-gray-300 transition-colors hover:border-brand-400 hover:bg-brand-500/15 sm:inline-flex"
-            >
-              <PlusIcon className="size-4" /> Create community
             </Link>
             <UserMenu />
           </> : <Login />}

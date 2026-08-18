@@ -43,11 +43,14 @@ export interface AuthState {
   }>;
 }
 
+// Initial state must be deterministic (not read from localStorage) so the client's first
+// render matches the server-rendered HTML — see AuthHydrator, which populates real values
+// from storage in a useEffect after mount.
 export const useAuthStore = create<AuthState>((set) => ({
-  user: getStoredToken(USER_KEY) ? JSON.parse(getStoredToken(USER_KEY)!) : null,
-  access_token: getStoredToken(ACCESS_TOKEN_KEY),
-  refresh_token: getStoredToken(REFRESH_TOKEN_KEY),
-  isAuthenticated: !!getStoredToken(ACCESS_TOKEN_KEY),
+  user: null,
+  access_token: null,
+  refresh_token: null,
+  isAuthenticated: false,
   loading: false,
   isGuestLoading: false,
   error: null,

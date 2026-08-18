@@ -18,6 +18,7 @@ export function Avatar({ name, src, size = 32, className }: AvatarProps) {
         alt={name}
         width={size}
         height={size}
+        loading="eager"
         className={cn("rounded-full object-cover ring-1 ring-black/5", className)}
         style={{ width: size, height: size }}
       />

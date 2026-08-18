@@ -14,6 +14,7 @@ import {
     CommunityGuidelineDTO,
     CommunityMemberDTO,
     CommunitySummaryDTO,
+    TrendingCommunityDTO,
 } from "../types/community.types";
 import { Paginated } from "../types/common.types";
 import { ApiError } from "../utils/response";
@@ -93,6 +94,63 @@ export class CommunityService {
             : new Map<string, CommunityRole>();
 
         return communities.map((c) => CommunityService.buildSummaryDTO(c, roleMap.get(c.id) ?? null));
+    }
+
+    static async getTrendingCommunities(limit = 5, viewerId?: string | null): Promise<TrendingCommunityDTO[]> {
+        const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+        const grouped = await prisma.posts.groupBy({
+            by: ["communityId"],
+            where: { createdAt: { gte: since }, communities: { visibility: CommunityVisibility.PUBLIC } },
+            _count: true,
+            orderBy: { _count: { id: "desc" } },
+            take: limit,
+        });
+        if (grouped.length === 0) return [];
+
+        const communityIds = grouped.map((g) => g.communityId);
+        const [communities, roles] = await Promise.all([
+            prisma.communities.findMany({
+                where: { id: { in: communityIds } },
+                include: { users: true, _count: { select: { community_members: true, posts: true } } },
+            }),
+            viewerId
+                ? prisma.community_members.findMany({ where: { userId: viewerId, communityId: { in: communityIds } } })
+                : Promise.resolve([]),
+        ]);
+
+        const communityMap = new Map(communities.map((c) => [c.id, c]));
+        const roleMap = new Map(roles.map((r) => [r.communityId, r.role]));
+
+        return grouped.flatMap((g) => {
+            const community = communityMap.get(g.communityId);
+            if (!community) return [];
+            return [
+                {
+                    ...CommunityService.buildSummaryDTO(community, roleMap.get(g.communityId) ?? null),
+                    postsToday: g._count,
+                },
+            ];
+        });
+    }
+
+    static async getCommunitiesToExplore(viewerId: string, limit = 5): Promise<CommunitySummaryDTO[]> {
+        const memberships = await prisma.community_members.findMany({
+            where: { userId: viewerId },
+            select: { communityId: true },
+        });
+
+        const communities = await prisma.communities.findMany({
+            where: {
+                visibility: CommunityVisibility.PUBLIC,
+                id: { notIn: memberships.map((m) => m.communityId) },
+            },
+            include: { users: true, _count: { select: { community_members: true, posts: true } } },
+            orderBy: [{ community_members: { _count: "desc" } }, { createdAt: "desc" }],
+            take: limit,
+        });
+
+        return communities.map((c) => CommunityService.buildSummaryDTO(c, null));
     }
 
     static async getCommunityBySlug(slug: string, viewerId?: string | null): Promise<CommunityDetailDTO | null> {
