@@ -67,14 +67,14 @@ export function PostCard({ post, onVote, detailed = false, canDelete = false, on
                 )}
 
                 {post.imageUrl && (
-                    <div
-                        className={cn(
-                            "relative mt-3 w-full overflow-hidden rounded-lg border border-gray-800 bg-gray-950",
-                            detailed ? "h-[28rem]" : "h-72"
-                        )}
-                    >
-                        <Image src={post.imageUrl} alt={post.title} fill className="object-contain" />
-                    </div>
+                    <Image
+                        src={post.imageUrl}
+                        alt={post.title}
+                        width={1200}
+                        height={800}
+                        sizes="(max-width: 768px) 100vw, 640px"
+                        className="mt-3 h-auto w-full rounded-lg border border-gray-800 bg-gray-950"
+                    />
                 )}
             </section>
 

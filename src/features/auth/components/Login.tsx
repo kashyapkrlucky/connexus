@@ -1,6 +1,8 @@
 "use client"
 import { useState } from "react";
-import { Modal } from "@/shared/components/layout/Modal";
+import { LogInIcon } from "lucide-react";
+import { Modal } from "@/shared/components/ui/Modal";
+import { Button } from "@/shared/components/ui/Button";
 import { LoginActions } from "./LoginActions";
 
 export function Login() {
@@ -8,16 +10,11 @@ export function Login() {
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setModalOpen(true)}
-        className="rounded-lg bg-accent px-2.5 py-1 text-sm font-medium text-accent-foreground"
-      >
-        Login
-      </button>
+      <Button type="button" size="sm" onClick={() => setModalOpen(true)}>
+        <LogInIcon className="size-4" /> Login
+      </Button>
 
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
-        <h2 className="text-lg font-semibold text-accent">Sign in to Connexus</h2>
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Sign in to Connexus">
         <LoginActions />
       </Modal>
     </>
