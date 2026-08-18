@@ -21,6 +21,7 @@ interface ProfileStore {
   profileLoading: boolean;
   profileNotFound: boolean;
   getProfile: (username: string) => Promise<void>;
+  getOwnProfile: () => Promise<void>;
   reset: () => void;
 
   ownScore: UserScoreDTO | null;
@@ -49,6 +50,17 @@ export const useProfileStore = create<ProfileStore>((set, get) => ({
     set({ profileLoading: true, profileNotFound: false });
     try {
       const { data } = await internalApi.get<UserProfileDTO>(`/v1/users/${username}`);
+      set({ profile: data });
+    } catch {
+      set({ profile: null, profileNotFound: true });
+    } finally {
+      set({ profileLoading: false });
+    }
+  },
+  getOwnProfile: async () => {
+    set({ profileLoading: true, profileNotFound: false });
+    try {
+      const { data } = await internalApi.get<UserProfileDTO>("/v1/users/me");
       set({ profile: data });
     } catch {
       set({ profile: null, profileNotFound: true });

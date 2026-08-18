@@ -1,8 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowBigDown, ArrowBigUp, MessageSquare, Share2 } from "lucide-react";
+import { ArrowBigDown, ArrowBigUp, MessageSquare, Share2, Trash2Icon } from "lucide-react";
+import { toast } from "sonner";
+import internalApi from "@/lib/http/internal";
 import type { PostDTO } from "@/server/types/post.types";
 import { Avatar } from "@/shared/components/ui/Avatar";
 import { cn } from "@/shared/utils/cn";
@@ -12,9 +15,29 @@ import { formatRelativeTime } from "@/shared/utils/date";
 interface PostCardProps {
     post: PostDTO;
     onVote: (postId: string, value: "UP" | "DOWN") => void;
+    detailed?: boolean;
+    canDelete?: boolean;
+    onDelete?: () => void;
 }
 
-export function PostCard({ post, onVote }: PostCardProps) {
+export function PostCard({ post, onVote, detailed = false, canDelete = false, onDelete }: PostCardProps) {
+    const [shareCount, setShareCount] = useState(post.shareCount);
+
+    async function handleShare() {
+        try {
+            await navigator.clipboard.writeText(`${window.location.origin}/p/${post.id}`);
+            toast.success("Link copied to clipboard");
+        } catch {
+            // clipboard unavailable — still record the share below
+        }
+        try {
+            const { data } = await internalApi.post<{ shareCount: number }>(`/v1/posts/${post.id}/share`);
+            setShareCount(data.shareCount);
+        } catch {
+            // non-critical, ignore
+        }
+    }
+
     return (
         <div className="rounded-xl border border-gray-800 bg-gray-900 p-4">
             <header className="flex items-center gap-2 text-xs text-gray-400">
@@ -31,16 +54,25 @@ export function PostCard({ post, onVote }: PostCardProps) {
             </header>
 
             <section className="mt-2">
-                <Link href={`/p/${post.id}`}>
-                    <h3 className="text-base font-semibold text-gray-100 hover:text-gray-300">{post.title}</h3>
-                </Link>
+                {detailed ? (
+                    <h1 className="text-xl font-bold text-gray-100">{post.title}</h1>
+                ) : (
+                    <Link href={`/p/${post.id}`}>
+                        <h3 className="text-base font-semibold text-gray-100 hover:text-gray-300">{post.title}</h3>
+                    </Link>
+                )}
 
                 {post.content && (
-                    <p className="mt-1.5 line-clamp-4 text-sm text-gray-400">{post.content}</p>
+                    <p className={cn("mt-1.5 text-sm text-gray-400", !detailed && "line-clamp-4")}>{post.content}</p>
                 )}
 
                 {post.imageUrl && (
-                    <div className="relative mt-3 h-72 w-full overflow-hidden rounded-lg border border-gray-800 bg-gray-950">
+                    <div
+                        className={cn(
+                            "relative mt-3 w-full overflow-hidden rounded-lg border border-gray-800 bg-gray-950",
+                            detailed ? "h-[28rem]" : "h-72"
+                        )}
+                    >
                         <Image src={post.imageUrl} alt={post.title} fill className="object-contain" />
                     </div>
                 )}
@@ -75,22 +107,44 @@ export function PostCard({ post, onVote }: PostCardProps) {
                     </button>
                 </div>
 
-                <Link
-                    href={`/p/${post.id}`}
-                    className="flex items-center gap-1.5 rounded-full border border-gray-800 bg-gray-800/60 px-3 py-1.5 text-xs font-medium text-gray-400 transition-colors hover:bg-gray-700 hover:text-gray-200"
-                >
-                    <MessageSquare className="size-3.5" />
-                    {formatCompactNumber(post.commentCount)}
-                </Link>
+                {detailed ? (
+                    <a
+                        href="#comments"
+                        className="flex items-center gap-1.5 rounded-full border border-gray-800 bg-gray-800/60 px-3 py-1.5 text-xs font-medium text-gray-400 transition-colors hover:bg-gray-700 hover:text-gray-200"
+                    >
+                        <MessageSquare className="size-3.5" />
+                        {formatCompactNumber(post.commentCount)}
+                    </a>
+                ) : (
+                    <Link
+                        href={`/p/${post.id}`}
+                        className="flex items-center gap-1.5 rounded-full border border-gray-800 bg-gray-800/60 px-3 py-1.5 text-xs font-medium text-gray-400 transition-colors hover:bg-gray-700 hover:text-gray-200"
+                    >
+                        <MessageSquare className="size-3.5" />
+                        {formatCompactNumber(post.commentCount)}
+                    </Link>
+                )}
 
                 <button
                     type="button"
                     aria-label="Share"
+                    onClick={handleShare}
                     className="flex cursor-pointer items-center gap-1.5 rounded-full border border-gray-800 bg-gray-800/60 px-3 py-1.5 text-xs font-medium text-gray-400 transition-colors hover:bg-gray-700 hover:text-gray-200"
                 >
                     <Share2 className="size-3.5" />
-                    {formatCompactNumber(post.shareCount)}
+                    {formatCompactNumber(shareCount)}
                 </button>
+
+                {canDelete && onDelete && (
+                    <button
+                        type="button"
+                        aria-label="Delete post"
+                        onClick={onDelete}
+                        className="ml-auto flex cursor-pointer items-center gap-1.5 rounded-full border border-gray-800 bg-gray-800/60 px-3 py-1.5 text-xs font-medium text-red-400 transition-colors hover:bg-red-500/10"
+                    >
+                        <Trash2Icon className="size-3.5" />
+                    </button>
+                )}
             </footer>
         </div>
     );
