@@ -33,14 +33,14 @@ export function TopBar() {
           {user ? <>
             <Link
               href="/create"
-              className="hidden items-center gap-1.5 rounded-lg bg-cyan-400 px-2.5 py-1 text-sm font-medium text-white shadow-sm shadow-cyan-500/20 transition-all hover:bg-cyan-600 hover:shadow-cyan-500/30 active:scale-[0.97] sm:inline-flex"
+              className="hidden items-center gap-1.5 rounded-lg bg-brand-500 px-2.5 py-1 text-sm font-medium text-white shadow-sm shadow-brand-500/20 transition-all hover:bg-brand-600 hover:shadow-brand-600/30 active:scale-[0.97] sm:inline-flex"
             >
               <PenSquareIcon className="size-4" /> Create
             </Link>
 
             <Link
               href="/create-community"
-              className="hidden items-center gap-1.5 rounded-lg border border-gray-700 bg-gray-900 px-2.5 py-1 text-sm font-medium text-neutral-300 transition-colors hover:border-cyan-300 hover:bg-cyan-900 sm:inline-flex"
+              className="hidden items-center gap-1.5 rounded-lg border border-gray-700 bg-gray-900 px-2.5 py-1 text-sm font-medium text-gray-300 transition-colors hover:border-brand-400 hover:bg-brand-500/15 sm:inline-flex"
             >
               <PlusIcon className="size-4" /> Create community
             </Link>

@@ -42,7 +42,7 @@ export function ImageUpload({
     return (
       <div
         className={cn(
-          "relative h-48 w-full overflow-hidden rounded-xl border border-neutral-200 bg-neutral-100",
+          "relative h-48 w-full overflow-hidden rounded-xl border border-gray-800 bg-gray-800",
           previewClassName
         )}
       >
@@ -65,7 +65,7 @@ export function ImageUpload({
         type="button"
         onClick={() => inputRef.current?.click()}
         disabled={uploading}
-        className="flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-neutral-300 bg-neutral-50/50 py-8 text-sm text-neutral-500 transition-colors hover:border-brand-400 hover:bg-brand-50/50 hover:text-brand-600 disabled:opacity-50"
+        className="flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-gray-800 bg-gray-800 py-8 text-sm text-gray-400 transition-colors hover:border-gray-600 hover:bg-gray-700 hover:text-gray-200 disabled:opacity-50"
       >
         {uploading ? <Loader2 className="size-6 animate-spin" /> : <ImagePlus className="size-6" />}
         {uploading ? "Uploading..." : label}

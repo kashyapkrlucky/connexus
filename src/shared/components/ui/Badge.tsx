@@ -4,11 +4,11 @@ import { cn } from "@/shared/utils/cn";
 type Tone = "neutral" | "brand" | "green" | "red" | "blue";
 
 const toneClasses: Record<Tone, string> = {
-  neutral: "bg-neutral-100 text-neutral-700",
-  brand: "bg-brand-100 text-brand-700",
-  green: "bg-emerald-100 text-emerald-700",
-  red: "bg-red-100 text-red-700",
-  blue: "bg-blue-100 text-blue-700",
+  neutral: "bg-gray-800 text-gray-300",
+  brand: "bg-brand-500/15 text-brand-400",
+  green: "bg-emerald-500/15 text-emerald-400",
+  red: "bg-red-500/15 text-red-400",
+  blue: "bg-blue-500/15 text-blue-400",
 };
 
 export function Badge({ children, tone = "neutral", className }: { children: ReactNode; tone?: Tone; className?: string }) {

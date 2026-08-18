@@ -5,8 +5,9 @@
   --foreground: #ededed;
   --surface: #111318;
   --border: #164e63;
-  --accent: #22d3ee;
-  --accent-foreground: #0a0a0a;
+  /* Brand color sampled from the Connexus logo (public/logo.png) — a vivid indigo-violet-blue. */
+  --accent: #4b42f0;
+  --accent-foreground: #ffffff;
 }
 
 @theme inline {
@@ -16,6 +17,16 @@
   --color-border: var(--border);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-brand-50: #f1f1fe;
+  --color-brand-100: #dfdefc;
+  --color-brand-200: #bbb8f9;
+  --color-brand-300: #8e89f5;
+  --color-brand-400: #665ff2;
+  --color-brand-500: #4b42f0;
+  --color-brand-600: #271ded;
+  --color-brand-700: #1a11d0;
+  --color-brand-800: #160eaa;
+  --color-brand-900: #110b84;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }

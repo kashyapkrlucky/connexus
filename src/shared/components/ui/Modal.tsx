@@ -25,7 +25,7 @@ export function Modal({ open, onClose, title, children, className }: ModalProps)
   if (!open) return null;
 
   return (
-    <div className="animate-overlay-in fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/30 p-4 backdrop-blur-sm">
+    <div className="animate-overlay-in fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
       <button
         aria-label="Close"
         className="absolute inset-0 cursor-default"
@@ -33,16 +33,16 @@ export function Modal({ open, onClose, title, children, className }: ModalProps)
       />
       <div
         className={cn(
-          "animate-modal-in relative z-10 flex max-h-[85vh] w-full max-w-lg flex-col rounded-2xl border border-neutral-100 bg-white p-5 shadow-2xl shadow-neutral-900/10",
+          "animate-modal-in relative z-10 flex max-h-[85vh] w-full max-w-lg flex-col rounded-2xl border border-gray-800 bg-gray-900 p-5 shadow-2xl shadow-black/40",
           className
         )}
       >
         <div className="mb-4 flex shrink-0 items-center justify-between">
-          {title && <h2 className="text-lg font-semibold text-neutral-900">{title}</h2>}
+          {title && <h2 className="text-lg font-semibold text-gray-100">{title}</h2>}
           <button
             onClick={onClose}
             aria-label="Close"
-            className="ml-auto rounded-full p-1.5 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 cursor-pointer"
+            className="ml-auto rounded-full p-1.5 text-gray-400 hover:bg-gray-800 hover:text-gray-100 cursor-pointer"
           >
             <X className="size-5" />
           </button>

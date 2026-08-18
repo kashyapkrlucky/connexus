@@ -1,5 +1,8 @@
-import { CompassIcon, FlameIcon, HomeIcon, SettingsIcon, UserIcon } from "lucide-react";
+import { CompassIcon, FlameIcon, HomeIcon } from "lucide-react";
 import Link from "next/link";
+import { useEffect } from "react";
+import { useHomeStore } from "@/features/home/store/useHomeStore";
+import { Avatar } from "../ui/Avatar";
 
 interface SideBarProps {
   children?: React.ReactNode;
@@ -12,6 +15,14 @@ export function SideBar({ children, className }: SideBarProps) {
     { label: "Explore", href: "/explore", icon: <CompassIcon className="h-5 w-5 text-gray-400" /> },
     { label: "Popular", href: "/popular", icon: <FlameIcon className="h-5 w-5 text-gray-400" /> },
   ];
+
+  const { memberships, getMemberships } = useHomeStore();
+
+  useEffect(() => {
+    getMemberships();
+  }, [getMemberships]);
+
+
   return (
     <aside
       className={`h-full w-72 shrink-0 border-r border-border/40 ${className ?? ""}`}
@@ -28,7 +39,28 @@ export function SideBar({ children, className }: SideBarProps) {
           </Link>
         ))}
       </div>
-
+      <div className="rounded-2xl border border-gray-700 bg-gray-900 p-3">
+        <h2 className="mb-2 flex items-center gap-1.5 px-1 text-xs font-semibold uppercase tracking-wide text-gray-400">
+          <CompassIcon className="size-3.5" /> Your communities
+        </h2>
+        {memberships.length === 0 ? (
+          <p className="px-1 text-sm text-gray-500">You haven&apos;t joined any yet.</p>
+        ) : (
+          <ul className="space-y-0.5">
+            {memberships.map((m) => (
+              <li key={m.id}>
+                <Link
+                  href={`/c/${m.slug}`}
+                  className="flex items-center gap-2 rounded-xl px-2 py-1.5 text-sm text-gray-300 transition-colors hover:bg-gray-800"
+                >
+                  <Avatar name={m.name} src={m.iconUrl} size={22} />
+                  <span className="truncate">c/{m.slug}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
       {children}
     </aside>
   );

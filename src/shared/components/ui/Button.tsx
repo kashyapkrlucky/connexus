@@ -13,14 +13,14 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantClasses: Record<Variant, string> = {
   primary:
-    "bg-cyan-600 text-white shadow-sm shadow-cyan-600/20 hover:bg-cyan-700 hover:shadow-cyan-600/30 disabled:bg-cyan-300 disabled:shadow-none",
+    "bg-brand-500 text-white shadow-sm shadow-brand-500/20 hover:bg-brand-600 hover:shadow-brand-600/30 disabled:opacity-50 disabled:shadow-none",
   secondary:
-    "bg-neutral-100 text-neutral-900 hover:bg-neutral-200 disabled:opacity-50",
-  ghost: "bg-transparent text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 disabled:opacity-50",
+    "bg-gray-800 text-gray-100 hover:bg-gray-700 disabled:opacity-50",
+  ghost: "bg-transparent text-gray-400 hover:bg-gray-800 hover:text-gray-100 disabled:opacity-50",
   danger:
-    "bg-red-600 text-white shadow-sm shadow-red-600/20 hover:bg-red-700 disabled:bg-red-300 disabled:shadow-none",
+    "bg-red-600 text-white shadow-sm shadow-red-600/20 hover:bg-red-700 disabled:opacity-50 disabled:shadow-none",
   outline:
-    "bg-white border border-neutral-200 text-neutral-800 shadow-xs hover:border-neutral-300 hover:bg-neutral-50 disabled:opacity-50",
+    "bg-gray-900 border border-gray-800 text-gray-200 shadow-xs hover:border-gray-700 hover:bg-gray-800 disabled:opacity-50",
 };
 
 const sizeClasses: Record<Size, string> = {
@@ -37,7 +37,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={disabled || loading}
         className={cn(
           "inline-flex items-center justify-center font-medium transition-all duration-150 active:scale-[0.97] cursor-pointer disabled:cursor-not-allowed disabled:active:scale-100",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           variantClasses[variant],
           sizeClasses[size],
           className

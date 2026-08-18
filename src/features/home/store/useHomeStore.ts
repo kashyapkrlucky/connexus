@@ -1,3 +1,4 @@
+import internalApi from "@/lib/http/internal";
 import { create } from "zustand";
 
 interface HomeStore {
@@ -11,29 +12,26 @@ interface HomeStore {
 export const useHomeStore = create<HomeStore>((set) => ({
     memberships: [],
     loading: false,
-    getMemberships: () => {
-        set({
-            memberships: [{
-                id: "1",
-                community: {
-                    id: "1",
-                    name: "Community 1",
-                    slug: "community-1",
-                    iconUrl: "/com.jpeg"
-                }
-            }], loading: false
-        });
+    getMemberships: async () => {
+       try {
+        const response = await internalApi.get("/v1/communities/by-user");
+        const data = response.data;
+        console.log(data);
+        set({ memberships: data.communities, loading: false });
+       } catch (error) {
+        console.error(error);
+        set({ loading: false });
+       }
     },
     topCommunities: [],
-    getTopCommunities: () => {
-        set({
-            topCommunities: [{
-                id: "1",
-                name: "Community 1",
-                slug: "community-1",
-                iconUrl: "/com.jpeg",
-                _count: { members: 100 }
-            }], loading: false
-        });
+    getTopCommunities: async () => {
+        try {
+            const response = await internalApi.get("/v1/communities");
+            const data = response.data;
+            console.log(data);
+            set({ topCommunities: data.communities });
+        } catch (error) {
+            console.error(error);
+        }
     },
 }));

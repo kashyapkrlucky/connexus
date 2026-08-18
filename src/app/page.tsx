@@ -97,31 +97,7 @@ export default function Home() {
       <TopBar />
 
       <div className="mx-auto flex w-full max-w-7xl flex-1">
-        <SideBar>
-
-          <div className="p-4">
-            <h2 className="mb-2 flex items-center gap-1.5 px-1 text-xs font-semibold uppercase tracking-wide text-gray-400">
-              <Compass className="size-3.5" /> Your communities
-            </h2>
-            {memberships.length === 0 ? (
-              <p className="px-1 text-sm text-gray-500">You haven&apos;t joined any yet.</p>
-            ) : (
-              <ul className="space-y-0.5">
-                {memberships.map((m) => (
-                  <li key={m.id}>
-                    <Link
-                      href={`/c/${m.community.slug}`}
-                      className="flex items-center gap-2 rounded-xl py-1.5 text-sm text-gray-300 transition-colors hover:bg-gray-800"
-                    >
-                      <Avatar name={m.community.name} src={m.community.iconUrl} size={22} />
-                      <span className="truncate">c/{m.community.slug}</span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </SideBar>
+        <SideBar />
 
         <main className="flex flex-1 flex-col p-4 gap-4 ">
           <Tabs items={TABS} value={sort} onChange={(v) => setSort(v as PostSort)} />
@@ -132,38 +108,7 @@ export default function Home() {
 
         </main>
 
-        <RightSidePanel className="p-4">
-
-          <div className="rounded-2xl border border-gray-700 bg-gray-900 p-3">
-            <h2 className="mb-3 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-400">
-              <SparklesIcon className="size-3.5" /> Popular communities
-            </h2>
-            {topCommunities.length === 0 ? (
-              <p className="text-sm text-gray-500">No communities yet.</p>
-            ) : (
-              <ul className="space-y-0.5">
-                {topCommunities.map((c) => (
-                  <li key={c.id}>
-                    <Link
-                      href={`/c/${c.slug}`}
-                      className="flex items-center justify-between gap-2 rounded-xl px-2 py-1.5 text-sm text-gray-300 transition-colors hover:bg-gray-800"
-                    >
-                      <span className="flex min-w-0 items-center gap-2">
-                        <Avatar name={c.name} src={c.iconUrl} size={26} />
-                        <span className="truncate">c/{c.slug}</span>
-                      </span>
-                      <span className="flex shrink-0 items-center gap-1 text-xs text-gray-500">
-                        <UsersIcon className="size-3" />
-                        {formatCompactNumber(c._count.members)}
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-        </RightSidePanel>
+        <RightSidePanel />
       </div>
     </div>
   );

@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "atlas-id.vercel.app",
       },
+      {
+        protocol: "https",
+        hostname: "kozsmuhorghziwxqzvuq.supabase.co",
+      },
     ],
   },
 };
