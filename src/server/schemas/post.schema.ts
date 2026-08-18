@@ -20,7 +20,7 @@ export const voteSchema = z.object({
 export type VoteInput = z.infer<typeof voteSchema>;
 
 export const listPostsQuerySchema = z.object({
-  scope: z.enum(["home", "community", "user"]).default("home"),
+  scope: z.enum(["home", "popular", "community", "user"]).default("home"),
   communitySlug: z.string().optional(),
   username: z.string().optional(),
   sort: z.enum(POST_SORTS).default("recent"),

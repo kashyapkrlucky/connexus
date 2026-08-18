@@ -25,6 +25,12 @@ const NAV_LINKS: NavLink[] = [
   { label: "Popular", href: "/popular", icon: FlameIcon },
 ];
 
+const FOOTER_LINKS = [
+  { label: "About", href: "/about" },
+  { label: "Help", href: "/help" },
+  { label: "Support", href: "/support" },
+];
+
 export function SideBar({ children, className }: SideBarProps) {
   const pathname = usePathname();
   const { memberships, getMemberships } = useHomeStore();
@@ -102,6 +108,17 @@ export function SideBar({ children, className }: SideBarProps) {
       </div>
 
       {children}
+
+      <footer className="px-2 pt-1">
+        <nav className="flex flex-wrap gap-x-3 gap-y-1">
+          {FOOTER_LINKS.map((link) => (
+            <Link key={link.href} href={link.href} className="text-xs text-gray-600 transition-colors hover:text-gray-400">
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+        <p className="mt-2 text-xs text-gray-700">© {new Date().getFullYear()} Connexus</p>
+      </footer>
     </aside>
   );
 }

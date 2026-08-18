@@ -226,6 +226,10 @@ export class PostService {
             return { authorId: author.id, ...PostService.visibilityFilter(viewerId) };
         }
 
+        if (query.scope === "popular") {
+            return PostService.visibilityFilter(viewerId);
+        }
+
         // scope === "home"
         if (!viewerId) {
             return PostService.visibilityFilter(viewerId);
