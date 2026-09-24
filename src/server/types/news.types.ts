@@ -3,4 +3,5 @@ export interface NewsItemDTO {
   url: string;
   source: string;
   publishedAt: string;
+  content?: string;
 }

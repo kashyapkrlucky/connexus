@@ -25,6 +25,7 @@ function parseFeed(xml: string): NewsItemDTO[] {
     while ((match = itemRegex.exec(xml))) {
         const block = match[1];
         const rawTitle = block.match(/<title>([\s\S]*?)<\/title>/)?.[1];
+        const content = decodeEntities(block.match(/<description>([\s\S]*?)<\/description>/)?.[1] || block.match(/<content>([\s\S]*?)<\/content>/)?.[1] || "");
         const link = block.match(/<link>([\s\S]*?)<\/link>/)?.[1];
         const pubDate = block.match(/<pubDate>([\s\S]*?)<\/pubDate>/)?.[1];
         const rawSource = block.match(/<source url="[^"]*">([\s\S]*?)<\/source>/)?.[1];
@@ -40,7 +41,7 @@ function parseFeed(xml: string): NewsItemDTO[] {
         const publishedAt = new Date(pubDate);
         if (Number.isNaN(publishedAt.getTime())) continue;
 
-        items.push({ title, url: link.trim(), source, publishedAt: publishedAt.toISOString() });
+        items.push({ title, url: link.trim(), source, publishedAt: publishedAt.toISOString(), content });
     }
 
     return items;
@@ -71,5 +72,22 @@ export class NewsService {
         const items = parseFeed(xml);
         cache = { items, fetchedAt: Date.now() };
         return items.slice(0, limit);
+    }
+
+    static async getByTopic(topic: string): Promise<NewsItemDTO> {
+        try {
+            const response = await fetch("https://news.google.com/rss/search?q=" + encodeURIComponent(topic), {
+                headers: { "User-Agent": "Mozilla/5.0 (compatible; ConnexusBot/1.0)" },
+            });
+            if (!response.ok) {
+                throw new ApiError("Couldn't load news right now", 502);
+            }
+            const xml = await response.text();
+            const items = parseFeed(xml);
+            return items[0];
+        } catch {
+            if (cache) return cache.items[0];
+            throw new ApiError("Couldn't load news right now", 502);
+        }
     }
 }

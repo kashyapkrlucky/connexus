@@ -80,7 +80,7 @@ export default function Home() {
       <div className="mx-auto flex w-full max-w-7xl flex-1">
         <SideBar />
 
-        <main className="flex flex-1 flex-col p-4 gap-4 ">
+        <main className="flex flex-1 flex-col p-4 gap-4 max-w-2xl">
           <Tabs items={TABS} value={sort} onChange={(v) => setSort(v as PostSort)} />
 
           {postsLoading ? (

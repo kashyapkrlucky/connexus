@@ -57,7 +57,7 @@ export default function CommunityPage({ params }: CommunityPageProps) {
         onEdit={() => setEditOpen(true)}
       />
 
-      <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[1fr_280px]">
+      <div className="flex flex-row gap-4 items-start flex-1">
         <CommunityPostsFeed slug={slug} />
         <CommunityGuidelines community={community} canManage={canManage} />
       </div>

@@ -42,7 +42,7 @@ export function ProfilePostsFeed({ username }: ProfilePostsFeedProps) {
   const totalPages = Math.max(1, Math.ceil(postsTotal / postsPageSize));
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 max-w-xl">
       <Tabs items={SORT_TABS} value={postsSort} onChange={(v) => setPostsSort(v as PostSort)} />
 
       {postsLoading ? (

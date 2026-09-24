@@ -23,7 +23,7 @@ export function CommunityHeader({ community, onToggleMembership, membershipUpdat
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-800 bg-gray-900">
       <div className="relative h-32 w-full bg-linear-to-br from-brand-900 to-gray-900 sm:h-40">
-        {community.bannerUrl && <Image src={community.bannerUrl} alt="" fill className="object-cover" />}
+        {community.bannerUrl && <Image src={community.bannerUrl} alt="" fill className="object-cover border border-gray-800" />}
       </div>
 
       <div className="px-4 pb-4 sm:px-6 sm:pb-6">
