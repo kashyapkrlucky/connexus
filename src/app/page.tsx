@@ -11,6 +11,7 @@ import { Skeleton } from "@/shared/components/ui/Skeleton";
 import { EmptyState } from "@/shared/components/ui/EmptyState";
 import { PostSort } from "@/features/home/types";
 import { PostCard } from "@/features/home/components/PostCard";
+import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 
 export default function Home() {
   const { getMemberships, posts, postsLoading, getPosts, votePost } = useHomeStore();
@@ -21,9 +22,11 @@ export default function Home() {
   ];
 
   const [sort, setSort] = useState<PostSort>("top");
+  const { isAuthenticated } = useCurrentUser();
+
   useEffect(() => {
     getMemberships();
-  }, [getMemberships]);
+  }, [getMemberships, isAuthenticated]);
 
   useEffect(() => {
     getPosts(sort);

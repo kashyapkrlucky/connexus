@@ -11,35 +11,35 @@
     "db:generate": "prisma generate",
     "db:pull": "prisma db pull",
     "db:seed": "prisma db seed",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "bot:once": "tsx scripts/bot-once.ts",
+    "jobs:dev": "trigger dev"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
     "@prisma/adapter-neon": "^7.9.1",
-    "@prisma/adapter-pg": "^7.9.1",
     "@prisma/client": "^7.9.1",
     "@supabase/supabase-js": "^2.112.3",
-    "@trigger.dev/sdk": "^4.5.16",
+    "@trigger.dev/sdk": "4.6.4",
     "axios": "^1.19.0",
     "clsx": "^2.1.1",
     "dotenv": "^17.4.2",
     "lucide-react": "^1.31.0",
     "next": "16.3.1",
     "next-auth": "^5.0.0-beta.32",
-    "pg": "^8.23.0",
+    "openai": "^7.23.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "sonner": "^2.0.8",
     "tailwind-merge": "^3.6.0",
-    "vitest": "^4.1.10",
     "ws": "^8.21.3",
+    "zod": "^3.25.76",
     "zustand": "^5.0.15"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
-    "@trigger.dev/build": "^4.5.16",
+    "@trigger.dev/build": "4.6.4",
     "@types/node": "^20",
-    "@types/pg": "^8.21.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/ws": "^8.18.1",
@@ -47,6 +47,9 @@
     "eslint-config-next": "16.3.1",
     "prisma": "^7.9.1",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "trigger.dev": "4.6.4",
+    "tsx": "^4.23.15",
+    "typescript": "^5",
+    "vitest": "^4.1.11"
   }
 }

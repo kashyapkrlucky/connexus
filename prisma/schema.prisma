@@ -51,6 +51,7 @@ model communities {
   users                         users                           @relation(fields: [ownerId], references: [id])
   community_analytics_snapshots community_analytics_snapshots[]
   community_bans                community_bans[]
+  community_feeds               community_feeds[]
   community_guidelines          community_guidelines[]
   community_members             community_members[]
   posts                         posts[]
@@ -87,6 +88,20 @@ model community_bans {
   @@unique([communityId, userId])
 }
 
+/// A content source the hourly bot pulls from when posting to a community.
+model community_feeds {
+  id          String      @id
+  communityId String
+  type        FeedType
+  /// RSS: feed URL. DEVTO: tag. HACKERNEWS: search query.
+  source      String
+  enabled     Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  communities communities @relation(fields: [communityId], references: [id], onDelete: Cascade)
+
+  @@unique([communityId, type, source])
+}
+
 model community_guidelines {
   id          String      @id
   communityId String
@@ -115,29 +130,45 @@ model community_members {
 }
 
 model posts {
-  id          String      @id
+  id          String             @id
   title       String
   content     String?
   imageUrl    String?
-  type        PostType    @default(TEXT)
+  type        PostType           @default(TEXT)
   communityId String
   authorId    String
-  viewCount   Int         @default(0)
-  shareCount  Int         @default(0)
-  score       Int         @default(0)
-  hotScore    Float       @default(0)
-  createdAt   DateTime    @default(now())
+  viewCount   Int                @default(0)
+  shareCount  Int                @default(0)
+  score       Int                @default(0)
+  hotScore    Float              @default(0)
+  /// Original article for bot-curated posts; unique per community to prevent reposts.
+  sourceUrl   String?
+  createdAt   DateTime           @default(now())
   comments    comments[]
-  users       users       @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  communities communities @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  engagements post_engagements[]
+  users       users              @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  communities communities        @relation(fields: [communityId], references: [id], onDelete: Cascade)
   votes       votes[]
 
+  @@unique([communityId, sourceUrl])
   @@index([authorId])
   @@index([communityId])
   @@index([createdAt])
   @@index([hotScore])
   @@index([score])
   @@index([viewCount])
+}
+
+/// One row per viewer per post per kind, so views/shares count once per person.
+model post_engagements {
+  id        String         @id
+  postId    String
+  viewerKey String
+  kind      EngagementKind
+  createdAt DateTime       @default(now())
+  posts     posts          @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, viewerKey, kind])
 }
 
 model users {
@@ -147,6 +178,7 @@ model users {
   displayName                                            String
   avatarUrl                                              String?
   bio                                                    String?
+  isBot                                                  Boolean             @default(false)
   createdAt                                              DateTime            @default(now())
   comment_votes                                          comment_votes[]
   comments                                               comments[]
@@ -180,6 +212,17 @@ enum CommunityRole {
 enum CommunityVisibility {
   PUBLIC
   PRIVATE
+}
+
+enum EngagementKind {
+  VIEW
+  SHARE
+}
+
+enum FeedType {
+  RSS
+  DEVTO
+  HACKERNEWS
 }
 
 enum PostType {

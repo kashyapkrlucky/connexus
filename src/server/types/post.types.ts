@@ -14,6 +14,7 @@ export interface PostDTO {
   title: string;
   content: string | null;
   imageUrl: string | null;
+  sourceUrl: string | null;
   type: PostType;
   score: number;
   upvotes: number;
@@ -23,7 +24,7 @@ export interface PostDTO {
   commentCount: number;
   hotScore: number;
   createdAt: string;
-  author: UserSummary;
+  author: UserSummary & { isBot: boolean };
   community: PostCommunitySummary;
   viewerVote: VoteValue | null;
 }

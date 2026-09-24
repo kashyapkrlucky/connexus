@@ -73,21 +73,4 @@ export class NewsService {
         cache = { items, fetchedAt: Date.now() };
         return items.slice(0, limit);
     }
-
-    static async getByTopic(topic: string): Promise<NewsItemDTO> {
-        try {
-            const response = await fetch("https://news.google.com/rss/search?q=" + encodeURIComponent(topic), {
-                headers: { "User-Agent": "Mozilla/5.0 (compatible; ConnexusBot/1.0)" },
-            });
-            if (!response.ok) {
-                throw new ApiError("Couldn't load news right now", 502);
-            }
-            const xml = await response.text();
-            const items = parseFeed(xml);
-            return items[0];
-        } catch {
-            if (cache) return cache.items[0];
-            throw new ApiError("Couldn't load news right now", 502);
-        }
-    }
 }

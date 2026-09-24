@@ -19,7 +19,6 @@ async function uploadImage(file: File, bucket: string): Promise<{ url: string }>
         );
     }
 
-    console.log("allowed types", ALLOWED_TYPES);
     if (!ALLOWED_TYPES.includes(file.type)) {
         throw new ApiError("Unsupported image type", 422);
     }
@@ -28,8 +27,7 @@ async function uploadImage(file: File, bucket: string): Promise<{ url: string }>
     }
 
     const ext = file.type.split("/")[1] ?? "jpg";
-    const path = `${new Date().getTime()}.${ext}`;
-    console.log("uploading image", ext, path);
+    const path = `${randomUUID()}.${ext}`;
     const { error } = await supabaseServerClient.storage
         .from(bucket)
         .upload(path, file, { contentType: file.type, upsert: false });
@@ -37,7 +35,6 @@ async function uploadImage(file: File, bucket: string): Promise<{ url: string }>
     if (error) throw new ApiError(`Upload failed: ${error.message}`, 500);
 
     const { data } = supabaseServerClient.storage.from(bucket).getPublicUrl(path);
-    console.log("uploaded image", data.publicUrl);
     return { url: data.publicUrl };
 }
 

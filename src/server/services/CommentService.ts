@@ -109,13 +109,15 @@ export class CommentService {
             });
         }
 
-        const [upCount, downCount] = await Promise.all([
-            prisma.comment_votes.count({ where: { commentId, value: VoteValue.UP } }),
-            prisma.comment_votes.count({ where: { commentId, value: VoteValue.DOWN } }),
-        ]);
-        const score = upCount - downCount;
-
-        await prisma.comments.update({ where: { id: commentId }, data: { score } });
+        // Recount and write in one statement so concurrent votes can't save a stale score.
+        const [{ score }] = await prisma.$queryRaw<{ score: number }[]>`
+            UPDATE comments
+            SET score = (
+                SELECT COALESCE(SUM(CASE WHEN value = 'UP' THEN 1 ELSE -1 END), 0)::int
+                FROM comment_votes WHERE "commentId" = ${commentId}
+            )
+            WHERE id = ${commentId}
+            RETURNING score`;
 
         return { score, viewerVote: value === "NONE" ? null : value };
     }

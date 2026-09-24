@@ -3,11 +3,12 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowBigDown, ArrowBigUp, MessageSquare, Share2, Trash2Icon } from "lucide-react";
+import { ArrowBigDown, ArrowBigUp, BotIcon, ExternalLinkIcon, MessageSquare, Share2, Trash2Icon } from "lucide-react";
 import { toast } from "sonner";
 import internalApi from "@/lib/http/internal";
 import type { PostDTO } from "@/server/types/post.types";
 import { Avatar } from "@/shared/components/ui/Avatar";
+import { Badge } from "@/shared/components/ui/Badge";
 import { cn } from "@/shared/utils/cn";
 import { formatCompactNumber } from "@/shared/utils/format";
 import { formatRelativeTime } from "@/shared/utils/date";
@@ -49,6 +50,11 @@ export function PostCard({ post, onVote, detailed = false, canDelete = false, on
                 <Link href={`/u/${post.author.username}`} className="hover:text-gray-200">
                     u/{post.author.username}
                 </Link>
+                {post.author.isBot && (
+                    <Badge tone="blue" className="px-1.5 py-0">
+                        <BotIcon className="size-3" /> bot
+                    </Badge>
+                )}
                 <span>•</span>
                 <span>{formatRelativeTime(post.createdAt)}</span>
             </header>
@@ -63,7 +69,19 @@ export function PostCard({ post, onVote, detailed = false, canDelete = false, on
                 )}
 
                 {post.content && (
-                    <p className={cn("mt-1.5 text-sm text-gray-400", !detailed && "line-clamp-4")}>{post.content}</p>
+                    <p className={cn("mt-1.5 whitespace-pre-line text-sm text-gray-400", !detailed && "line-clamp-4")}>{post.content}</p>
+                )}
+
+                {post.sourceUrl && (
+                    <a
+                        href={post.sourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer nofollow"
+                        className="mt-2 inline-flex max-w-full items-center gap-1.5 text-xs text-brand-400 hover:text-brand-300"
+                    >
+                        <ExternalLinkIcon className="size-3.5 shrink-0" />
+                        <span className="truncate">Read the original article</span>
+                    </a>
                 )}
 
                 {post.imageUrl && (

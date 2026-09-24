@@ -134,11 +134,10 @@ export class CommunityService {
         });
     }
 
-    static async getCommunitiesToExplore(viewerId: string, limit = 5): Promise<CommunitySummaryDTO[]> {
-        const memberships = await prisma.community_members.findMany({
-            where: { userId: viewerId },
-            select: { communityId: true },
-        });
+    static async getCommunitiesToExplore(viewerId: string | null, limit = 5): Promise<CommunitySummaryDTO[]> {
+        const memberships = viewerId
+            ? await prisma.community_members.findMany({ where: { userId: viewerId }, select: { communityId: true } })
+            : [];
 
         const communities = await prisma.communities.findMany({
             where: {

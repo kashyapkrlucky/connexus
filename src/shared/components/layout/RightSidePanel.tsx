@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, type ReactNode } from "react";
+import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import Link from "next/link";
 import { CompassIcon, FlameIcon, GlobeIcon, UsersIcon } from "lucide-react";
 import { useSidebarStore } from "@/features/sidebar/store/useSidebarStore";
@@ -67,12 +68,19 @@ export function RightSidePanel({ children, className }: RightSidePanelProps) {
     getNews,
   } = useSidebarStore();
 
+  const { isAuthenticated, isLoading: authLoading } = useCurrentUser();
+
   useEffect(() => {
     getTrending();
-    getExplore();
-    getScore();
     getNews();
-  }, [getTrending, getExplore, getScore, getNews]);
+  }, [getTrending, getNews]);
+
+  // Explore excludes joined communities and score is per-user, so both follow the session.
+  useEffect(() => {
+    if (authLoading) return;
+    getExplore();
+    if (isAuthenticated) getScore();
+  }, [authLoading, isAuthenticated, getExplore, getScore]);
 
   return (
     <aside className={`h-full w-72 shrink-0 space-y-3 border-l border-border/40 p-3 ${className ?? ""}`}>
@@ -129,10 +137,12 @@ export function RightSidePanel({ children, className }: RightSidePanelProps) {
         )}
       </SectionCard>
 
-      <div className="rounded-2xl border border-gray-700 bg-gray-900 p-3">
-        <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Your score</h2>
-        {scoreLoading || !score ? <Skeleton className="h-10 w-full" /> : <RankBadge rank={score.rank} xp={score.xp} />}
-      </div>
+      {isAuthenticated && (
+        <div className="rounded-2xl border border-gray-700 bg-gray-900 p-3">
+          <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Your score</h2>
+          {scoreLoading || !score ? <Skeleton className="h-10 w-full" /> : <RankBadge rank={score.rank} xp={score.xp} />}
+        </div>
+      )}
 
       <SectionCard icon={<GlobeIcon className="size-3.5" />} title="What's happening" viewMoreHref="/news">
         {newsLoading ? (

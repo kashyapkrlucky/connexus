@@ -1,4 +1,4 @@
-import { CommunityVisibility, PostType, VoteValue } from "../../../generated/prisma/enums";
+import { CommunityVisibility, EngagementKind, PostType, VoteValue } from "../../../generated/prisma/enums";
 import { Prisma } from "../../../generated/prisma/client";
 import { CreatePostInput, ListPostsQuery, VoteInput } from "../schemas/post.schema";
 import { PostDTO } from "../types/post.types";
@@ -159,40 +159,49 @@ export class PostService {
             });
         }
 
-        const [upCount, downCount] = await Promise.all([
-            prisma.votes.count({ where: { postId, value: VoteValue.UP } }),
-            prisma.votes.count({ where: { postId, value: VoteValue.DOWN } }),
-        ]);
-        const score = upCount - downCount;
-        const hotScore = computeHotScore(score, post.createdAt);
-
-        await prisma.posts.update({ where: { id: postId }, data: { score, hotScore } });
+        // Recount and write in one statement so concurrent votes can't save a stale score.
+        const [{ score }] = await prisma.$queryRaw<{ score: number }[]>`
+            UPDATE posts
+            SET score = (
+                SELECT COALESCE(SUM(CASE WHEN value = 'UP' THEN 1 ELSE -1 END), 0)::int
+                FROM votes WHERE "postId" = ${postId}
+            )
+            WHERE id = ${postId}
+            RETURNING score`;
+        await prisma.posts.update({ where: { id: postId }, data: { hotScore: computeHotScore(score, post.createdAt) } });
 
         return { score, viewerVote: value === "NONE" ? null : value };
     }
 
-    static async incrementView(postId: string): Promise<{ viewCount: number }> {
-        const exists = await prisma.posts.findUnique({ where: { id: postId }, select: { id: true } });
-        if (!exists) throw new ApiError("Post not found", 404);
-
-        const post = await prisma.posts.update({
-            where: { id: postId },
-            data: { viewCount: { increment: 1 } },
-            select: { viewCount: true },
-        });
+    static async incrementView(postId: string, viewerKey: string): Promise<{ viewCount: number }> {
+        const post = await PostService.recordEngagement(postId, viewerKey, EngagementKind.VIEW);
         return { viewCount: post.viewCount };
     }
 
-    static async incrementShare(postId: string): Promise<{ shareCount: number }> {
+    static async incrementShare(postId: string, viewerKey: string): Promise<{ shareCount: number }> {
+        const post = await PostService.recordEngagement(postId, viewerKey, EngagementKind.SHARE);
+        return { shareCount: post.shareCount };
+    }
+
+    /** Bumps the counter only the first time this viewer views/shares the post. */
+    private static async recordEngagement(postId: string, viewerKey: string, kind: EngagementKind) {
         const exists = await prisma.posts.findUnique({ where: { id: postId }, select: { id: true } });
         if (!exists) throw new ApiError("Post not found", 404);
 
-        const post = await prisma.posts.update({
-            where: { id: postId },
-            data: { shareCount: { increment: 1 } },
-            select: { shareCount: true },
+        const { count } = await prisma.post_engagements.createMany({
+            data: [{ id: crypto.randomUUID(), postId, viewerKey, kind }],
+            skipDuplicates: true,
         });
-        return { shareCount: post.shareCount };
+
+        const select = { viewCount: true, shareCount: true };
+        if (count === 0) {
+            return prisma.posts.findUniqueOrThrow({ where: { id: postId }, select });
+        }
+        return prisma.posts.update({
+            where: { id: postId },
+            data: kind === EngagementKind.VIEW ? { viewCount: { increment: 1 } } : { shareCount: { increment: 1 } },
+            select,
+        });
     }
 
     private static async buildScopeWhere(
@@ -290,6 +299,7 @@ export class PostService {
             title: post.title,
             content: post.content,
             imageUrl: post.imageUrl,
+            sourceUrl: post.sourceUrl,
             type: post.type,
             score: post.score,
             upvotes: votes.up,
@@ -304,6 +314,7 @@ export class PostService {
                 username: post.users.username,
                 displayName: post.users.displayName,
                 avatarUrl: post.users.avatarUrl,
+                isBot: post.users.isBot,
             },
             community: {
                 id: post.communities.id,

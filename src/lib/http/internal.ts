@@ -1,19 +1,10 @@
 import axios, { AxiosError } from "axios";
-import { toast } from "sonner";
 
 // API routes live in this app, so requests are same-origin and the
-// Auth.js session cookie is sent automatically.
+// Auth.js session cookie is sent automatically. 401s are handled by callers
+// (see getErrorMessage) rather than globally, since some pages probe
+// signed-in-only data for anonymous visitors.
 const internalApi = axios.create({ baseURL: "/api" });
-
-internalApi.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      toast.error("Please sign in to continue.", { id: "unauthorized" });
-    }
-    return Promise.reject(error);
-  },
-);
 
 export { AxiosError };
 export default internalApi;
