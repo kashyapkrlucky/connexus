@@ -10,6 +10,7 @@ import type { PostDTO } from "@/server/types/post.types";
 import { Avatar } from "@/shared/components/ui/Avatar";
 import { Badge } from "@/shared/components/ui/Badge";
 import { cn } from "@/shared/utils/cn";
+import { isOptimizedImageHost } from "@/shared/constants/imageHosts";
 import { formatCompactNumber } from "@/shared/utils/format";
 import { formatRelativeTime } from "@/shared/utils/date";
 
@@ -93,6 +94,9 @@ export function PostCard({ post, onVote, detailed = false, canDelete = false, on
                         alt={post.title}
                         width={1200}
                         height={800}
+                        // Curated posts hotlink publisher images from arbitrary hosts, which the
+                        // optimizer rejects; load those directly.
+                        unoptimized={!isOptimizedImageHost(post.imageUrl)}
                         sizes="(max-width: 768px) 100vw, 640px"
                         className="mt-3 h-auto w-full rounded-lg border border-gray-800 bg-gray-950"
                     />

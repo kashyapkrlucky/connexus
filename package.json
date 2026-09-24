@@ -14,6 +14,7 @@
     "db:seed": "prisma db seed",
     "db:studio": "prisma studio",
     "bot:once": "tsx scripts/bot-once.ts",
+    "bot:backfill-images": "tsx scripts/bot-backfill-images.ts",
     "analytics:backfill": "tsx scripts/analytics-backfill.ts",
     "jobs:dev": "trigger dev"
   },

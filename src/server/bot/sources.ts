@@ -6,6 +6,10 @@ export interface FeedItem {
     summary: string;
     source: string;
     publishedAt: Date;
+    /** Full-size cover from the source's own API (dev.to); preferred as-is. */
+    coverImageUrl?: string;
+    /** Image embedded in an RSS item; may be a small thumbnail. */
+    thumbnailUrl?: string;
 }
 
 export interface FeedConfig {
@@ -36,7 +40,7 @@ async function getText(url: string): Promise<string> {
 
 async function fetchDevTo(tag: string): Promise<FeedItem[]> {
     const url = `https://dev.to/api/articles?tag=${encodeURIComponent(tag)}&top=2&per_page=${ITEMS_PER_FEED}`;
-    const articles: { title: string; url: string; description: string; published_at: string }[] = JSON.parse(
+    const articles: { title: string; url: string; description: string; published_at: string; cover_image: string | null }[] = JSON.parse(
         await getText(url)
     );
     return articles.map((a) => ({
@@ -45,6 +49,7 @@ async function fetchDevTo(tag: string): Promise<FeedItem[]> {
         summary: a.description ?? "",
         source: "DEV Community",
         publishedAt: new Date(a.published_at),
+        coverImageUrl: a.cover_image ?? undefined,
     }));
 }
 
@@ -80,8 +85,29 @@ async function fetchRss(feedUrl: string): Promise<FeedItem[]> {
         const trimmedTitle = title.endsWith(` - ${source}`) ? title.slice(0, -(source.length + 3)) : title;
         const summary = cleanText(tag(block, "description") || tag(block, "summary") || tag(block, "content"));
 
-        return [{ title: trimmedTitle, url, summary: truncate(summary), source, publishedAt: date }];
+        return [
+            {
+                title: trimmedTitle,
+                url,
+                summary: truncate(summary),
+                source,
+                publishedAt: date,
+                thumbnailUrl: findEmbeddedImage(block),
+            },
+        ];
     });
+}
+
+/** media:thumbnail / media:content / image enclosure, else the first <img> in the item's HTML. */
+function findEmbeddedImage(block: string): string | undefined {
+    const attr = (pattern: RegExp) => block.match(pattern)?.[1];
+    const found =
+        attr(/<media:thumbnail[^>]*\surl="([^"]+)"/) ||
+        attr(/<media:content[^>]*\surl="([^"]+)"[^>]*(?:medium="image"|type="image\/)/) ||
+        attr(/<enclosure[^>]*\surl="([^"]+)"[^>]*type="image\//) ||
+        attr(/<img[^>]+src=["']([^"']+)/) ||
+        attr(/&lt;img[^&]*?src=(?:&quot;|")([^&"]+)/);
+    return found ? decodeEntities(found) : undefined;
 }
 
 function tag(xml: string, name: string): string {

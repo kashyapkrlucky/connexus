@@ -1,22 +1,9 @@
 import type { NextConfig } from "next";
+import { OPTIMIZED_IMAGE_HOSTS } from "./src/shared/constants/imageHosts";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "lh3.googleusercontent.com",
-      },
-      {
-        protocol: "https",
-        hostname: "kozsmuhorghziwxqzvuq.supabase.co",
-      },
-      {
-        protocol: "https",
-        hostname: "api.dicebear.com",
-      },
-    ],
+    remotePatterns: OPTIMIZED_IMAGE_HOSTS.map((hostname) => ({ protocol: "https", hostname })),
   },
 };
 

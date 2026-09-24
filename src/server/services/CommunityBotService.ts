@@ -2,6 +2,8 @@ import { Prisma } from "../../../generated/prisma/client";
 import { prisma } from "@/infra/db/connect";
 import { fetchFeed, type FeedConfig, type FeedItem } from "../bot/sources";
 import { composePost } from "../bot/writer";
+import { resolvePostImage } from "../bot/images";
+import { PostType } from "../../../generated/prisma/enums";
 import { computeHotScore } from "../utils/hotScore";
 
 /** Seeded by the `community_bot` migration. */
@@ -14,7 +16,7 @@ const MAX_CANDIDATES = 12;
 const MIN_GAP_BETWEEN_POSTS_MS = 12 * 60 * 1000;
 
 export type BotRunResult =
-    | { status: "posted"; postId: string; title: string; sourceUrl: string }
+    | { status: "posted"; postId: string; title: string; sourceUrl: string; imageUrl: string | null }
     | { status: "skipped"; reason: string };
 
 export class CommunityBotService {
@@ -51,6 +53,8 @@ export class CommunityBotService {
         const composed = await composePost(community, candidates);
         if (!composed) return { status: "skipped", reason: "nothing relevant enough to post" };
 
+        const imageUrl = await resolvePostImage(composed.item);
+
         try {
             const post = await prisma.posts.create({
                 data: {
@@ -58,12 +62,14 @@ export class CommunityBotService {
                     title: composed.title,
                     content: `${composed.body}\n\nSource: ${composed.item.source}`,
                     sourceUrl: composed.item.url,
+                    imageUrl,
+                    type: imageUrl ? PostType.IMAGE : PostType.TEXT,
                     communityId,
                     authorId: BOT_USER_ID,
                     hotScore: computeHotScore(0, new Date()),
                 },
             });
-            return { status: "posted", postId: post.id, title: post.title, sourceUrl: composed.item.url };
+            return { status: "posted", postId: post.id, title: post.title, sourceUrl: composed.item.url, imageUrl };
         } catch (error) {
             // Another run posted the same article first.
             if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
