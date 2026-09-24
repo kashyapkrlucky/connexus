@@ -19,7 +19,8 @@ export function Avatar({ name, src, size = 32, className }: AvatarProps) {
         width={size}
         height={size}
         loading="eager"
-        className={cn("rounded-full object-cover ring-1 ring-black/5", className)}
+        // Background shows behind transparent icons (e.g. generated community avatars).
+        className={cn("shrink-0 rounded-full bg-gray-800 object-cover ring-1 ring-white/10", className)}
         style={{ width: size, height: size }}
       />
     );
@@ -28,7 +29,7 @@ export function Avatar({ name, src, size = 32, className }: AvatarProps) {
   return (
     <div
       className={cn(
-        "flex shrink-0 items-center justify-center rounded-full bg-linear-to-br from-brand-400 to-brand-600 font-semibold text-white ring-1 ring-black/5",
+        "flex shrink-0 items-center justify-center rounded-full bg-linear-to-br from-brand-400 to-brand-600 font-semibold text-white ring-1 ring-white/10",
         className
       )}
       style={{ width: size, height: size, fontSize: size * 0.42 }}

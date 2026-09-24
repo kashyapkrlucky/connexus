@@ -4,6 +4,7 @@ import { BotIcon, ShieldCheckIcon, TrophyIcon, UsersIcon, type LucideIcon } from
 import { RANK_TIERS, XP_WEIGHTS } from "@/server/utils/rank";
 import { RANK_COLOR_CLASSES } from "@/shared/components/ui/RankBadge";
 import { cn } from "@/shared/utils/cn";
+import { PageHeader } from "@/shared/components/layout/PageHeader";
 
 export const metadata: Metadata = { title: "About" };
 
@@ -39,14 +40,11 @@ const XP_RULES = [
 
 export default function AboutPage() {
   return (
-    <div className="mx-auto flex max-w-3xl flex-col gap-6">
-      <header>
-        <h1 className="text-2xl font-bold tracking-tight text-gray-200">About Connexus</h1>
-        <p className="mt-2 text-sm leading-relaxed text-gray-400">
-          Connexus is a place to build and join communities around the things you care about: start a community,
-          share posts, discuss with people who get it, and vote on what matters.
-        </p>
-      </header>
+    <div className="mx-auto flex max-w-2xl flex-col gap-6">
+      <PageHeader
+        title="About Connexus"
+        description="Connexus is a place to build and join communities around the things you care about: start a community, share posts, discuss with people who get it, and vote on what matters."
+      />
 
       <section className="grid gap-3 sm:grid-cols-2">
         {PILLARS.map(({ icon: Icon, title, body }) => (

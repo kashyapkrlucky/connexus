@@ -10,17 +10,13 @@ import { Tabs } from "@/shared/components/ui/Tabs";
 import { Skeleton } from "@/shared/components/ui/Skeleton";
 import { EmptyState } from "@/shared/components/ui/EmptyState";
 import { PostSort } from "@/features/home/types";
+import { FEED_SORT_TABS } from "@/shared/constants";
 import { PostCard } from "@/features/home/components/PostCard";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import { InfiniteScrollTrigger } from "@/shared/components/ui/InfiniteScrollTrigger";
 
 export default function Home() {
   const { getMemberships, posts, postsLoading, postsLoadingMore, postsPage, postsHasMore, getPosts, votePost } = useHomeStore();
-  const TABS = [
-    { value: "top", label: "Top" },
-    { value: "recent", label: "Recent" },
-    { value: "views", label: "Most Viewed" },
-  ];
 
   const [sort, setSort] = useState<PostSort>("top");
   const { isAuthenticated } = useCurrentUser();
@@ -37,11 +33,11 @@ export default function Home() {
     <div className="flex flex-1 flex-col">
       <TopBar />
 
-      <div className="mx-auto flex w-full max-w-7xl flex-1">
+      <div className="mx-auto flex justify-between w-full max-w-7xl flex-1">
         <SideBar className="hidden lg:block" />
 
-        <main className="flex min-w-0 max-w-2xl flex-1 flex-col gap-4 p-3 sm:p-4">
-          <Tabs items={TABS} value={sort} onChange={(v) => setSort(v as PostSort)} />
+        <main className="mx-auto flex min-w-0 max-w-2xl flex-1 flex-col gap-4 p-3 sm:p-4 xl:mx-0">
+          <Tabs items={FEED_SORT_TABS} value={sort} onChange={(v) => setSort(v as PostSort)} />
 
           {postsLoading ? (
             <>

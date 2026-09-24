@@ -8,7 +8,7 @@ import { Avatar } from "@/shared/components/ui/Avatar";
 import { Button } from "@/shared/components/ui/Button";
 import { Skeleton } from "@/shared/components/ui/Skeleton";
 import { EmptyState } from "@/shared/components/ui/EmptyState";
-import { formatCompactNumber } from "@/shared/utils/format";
+import { formatCompactNumber, pluralize } from "@/shared/utils/format";
 
 interface CommunityRowData {
   id: string;
@@ -84,7 +84,7 @@ export function ExploreView() {
               <CommunityRow
                 key={c.id}
                 community={c}
-                extra={`${formatCompactNumber(c.postsToday)} posts today`}
+                extra={`${formatCompactNumber(c.postsToday)} ${pluralize(c.postsToday, "post")} today`}
                 onJoin={joinCommunity}
               />
             ))}
@@ -110,7 +110,7 @@ export function ExploreView() {
               <CommunityRow
                 key={c.id}
                 community={c}
-                extra={`${formatCompactNumber(c.memberCount)} members`}
+                extra={`${formatCompactNumber(c.memberCount)} ${pluralize(c.memberCount, "member")}`}
                 onJoin={joinCommunity}
               />
             ))}

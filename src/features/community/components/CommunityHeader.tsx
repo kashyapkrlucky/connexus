@@ -7,7 +7,7 @@ import type { CommunityDetailDTO } from "@/server/types/community.types";
 import { Avatar } from "@/shared/components/ui/Avatar";
 import { Button } from "@/shared/components/ui/Button";
 import { Badge } from "@/shared/components/ui/Badge";
-import { formatCompactNumber } from "@/shared/utils/format";
+import { formatCompactNumber, pluralize } from "@/shared/utils/format";
 import { formatRelativeTime } from "@/shared/utils/date";
 
 interface CommunityHeaderProps {
@@ -71,10 +71,10 @@ export function CommunityHeader({ community, onToggleMembership, membershipUpdat
 
         <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500">
           <span>
-            <strong className="text-gray-200">{formatCompactNumber(community.memberCount)}</strong> members
+            <strong className="text-gray-200">{formatCompactNumber(community.memberCount)}</strong> {pluralize(community.memberCount, "member")}
           </span>
           <span>
-            <strong className="text-gray-200">{formatCompactNumber(community.postCount)}</strong> posts
+            <strong className="text-gray-200">{formatCompactNumber(community.postCount)}</strong> {pluralize(community.postCount, "post")}
           </span>
           <span className="flex items-center gap-1">
             <CalendarIcon className="size-3" /> Created {formatRelativeTime(community.createdAt)}

@@ -3,7 +3,7 @@ import { ArrowBigUp, MessageSquare } from "lucide-react";
 import type { SearchResultsDTO } from "@/server/services/SearchService";
 import { Avatar } from "@/shared/components/ui/Avatar";
 import { cn } from "@/shared/utils/cn";
-import { formatCompactNumber } from "@/shared/utils/format";
+import { formatCompactNumber, pluralize } from "@/shared/utils/format";
 
 interface SearchResultListProps {
   results: SearchResultsDTO;
@@ -39,7 +39,7 @@ export function SearchResultList({ results, compact = false, onNavigate }: Searc
                   {!compact && <p className="truncate text-xs text-gray-500">{c.description}</p>}
                 </div>
                 <span className="ml-auto shrink-0 text-xs text-gray-500">
-                  {formatCompactNumber(c.memberCount)} members
+                  {formatCompactNumber(c.memberCount)} {pluralize(c.memberCount, "member")}
                 </span>
               </Link>
             </li>

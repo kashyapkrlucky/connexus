@@ -8,14 +8,7 @@ import { Skeleton } from "@/shared/components/ui/Skeleton";
 import { EmptyState } from "@/shared/components/ui/EmptyState";
 import { InfiniteScrollTrigger } from "@/shared/components/ui/InfiniteScrollTrigger";
 import { useCommunityStore } from "../store/useCommunityStore";
-import type { PostSort } from "@/shared/constants";
-
-const SORT_TABS = [
-  { value: "hot", label: "Hot" },
-  { value: "top", label: "Top" },
-  { value: "recent", label: "New" },
-  { value: "views", label: "Most Viewed" },
-];
+import { FEED_SORT_TABS, type PostSort } from "@/shared/constants";
 
 interface CommunityPostsFeedProps {
   slug: string;
@@ -40,7 +33,7 @@ export function CommunityPostsFeed({ slug }: CommunityPostsFeedProps) {
 
   return (
     <div className="flex min-w-0 max-w-xl flex-col gap-3">
-      <Tabs items={SORT_TABS} value={postsSort} onChange={(v) => setPostsSort(v as PostSort)} />
+      <Tabs items={FEED_SORT_TABS} value={postsSort} onChange={(v) => setPostsSort(v as PostSort)} />
 
       {postsLoading ? (
         <div className="space-y-3">

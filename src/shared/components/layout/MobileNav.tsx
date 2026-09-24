@@ -60,7 +60,7 @@ export function MobileNav() {
                 <X className="size-5" />
               </button>
             </div>
-            <SideBar className="h-auto w-full border-r-0" />
+            <SideBar className="w-full border-r-0" />
           </div>
         </div>
       )}

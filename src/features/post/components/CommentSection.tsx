@@ -30,7 +30,7 @@ export function CommentSection({
   return (
     <div id="comments" className="rounded-xl border border-gray-800 bg-gray-900 p-4">
       <h2 className="mb-3 text-sm font-semibold text-gray-200">
-        {totalCount > 0 ? `${totalCount} comments` : "Comments"}
+        {totalCount > 0 ? `${totalCount} ${totalCount === 1 ? "comment" : "comments"}` : "Comments"}
       </h2>
 
       {isAuthenticated ? (

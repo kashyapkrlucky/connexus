@@ -10,6 +10,7 @@ import { ProfileEditFields } from "@/features/profile/components/ProfileEditFiel
 import { Button } from "@/shared/components/ui/Button";
 import { EmptyState } from "@/shared/components/ui/EmptyState";
 import { Skeleton } from "@/shared/components/ui/Skeleton";
+import { PageHeader } from "@/shared/components/layout/PageHeader";
 
 export default function SettingsPage() {
   const { user, isAuthenticated, isLoading } = useCurrentUser();
@@ -21,8 +22,8 @@ export default function SettingsPage() {
 
   if (!isLoading && !isAuthenticated) {
     return (
-      <div className="mx-auto max-w-xl">
-        <h1 className="mb-6 text-2xl font-bold tracking-tight text-gray-200">Settings</h1>
+      <div className="mx-auto flex max-w-2xl flex-col gap-6">
+        <PageHeader title="Settings" />
         <EmptyState
           icon={SettingsIcon}
           title="Sign in to manage your settings"
@@ -38,8 +39,8 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-xl">
-      <h1 className="mb-6 text-2xl font-bold tracking-tight text-gray-200">Settings</h1>
+    <div className="mx-auto flex max-w-2xl flex-col gap-6">
+      <PageHeader title="Settings" />
 
       {isLoading || profileLoading || !profile ? (
         <div className="space-y-3">

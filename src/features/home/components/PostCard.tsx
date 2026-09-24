@@ -22,6 +22,14 @@ interface PostCardProps {
     onDelete?: () => void;
 }
 
+function sourceHost(url: string): string {
+    try {
+        return new URL(url).hostname.replace(/^www\./, "");
+    } catch {
+        return "the original site";
+    }
+}
+
 export function PostCard({ post, onVote, detailed = false, canDelete = false, onDelete }: PostCardProps) {
     const [shareCount, setShareCount] = useState(post.shareCount);
 
@@ -47,17 +55,23 @@ export function PostCard({ post, onVote, detailed = false, canDelete = false, on
                     <Avatar name={post.community.name} src={post.community.iconUrl} size={20} />
                     <span className="font-medium text-gray-300">c/{post.community.slug}</span>
                 </Link>
-                <span>•</span>
-                <Link href={`/u/${post.author.username}`} className="hover:text-gray-200">
-                    u/{post.author.username}
-                </Link>
-                {post.author.isBot && (
-                    <Badge tone="blue" className="px-1.5 py-0">
-                        <BotIcon className="size-3" /> bot
-                    </Badge>
-                )}
-                <span>•</span>
-                <span>{formatRelativeTime(post.createdAt)}</span>
+                {/* Each separator travels with the item after it, so a wrap never strands a "•". */}
+                {/* On phones the feed header shows only community + time; the post page shows the author. */}
+                <span className={cn("items-center gap-2", detailed ? "flex" : "hidden sm:flex")}>
+                    <span aria-hidden>•</span>
+                    <Link href={`/u/${post.author.username}`} className="hover:text-gray-200">
+                        u/{post.author.username}
+                    </Link>
+                    {post.author.isBot && (
+                        <Badge tone="blue" className="px-1.5 py-0">
+                            <BotIcon className="size-3" /> bot
+                        </Badge>
+                    )}
+                </span>
+                <span className="flex items-center gap-2">
+                    <span aria-hidden>•</span>
+                    <time dateTime={post.createdAt}>{formatRelativeTime(post.createdAt)}</time>
+                </span>
             </header>
 
             <section className="mt-2">
@@ -76,18 +90,6 @@ export function PostCard({ post, onVote, detailed = false, canDelete = false, on
                     </p>
                 )}
 
-                {post.sourceUrl && (
-                    <a
-                        href={post.sourceUrl}
-                        target="_blank"
-                        rel="noopener noreferrer nofollow"
-                        className="mt-2 inline-flex max-w-full items-center gap-1.5 text-xs text-brand-400 hover:text-brand-300"
-                    >
-                        <ExternalLinkIcon className="size-3.5 shrink-0" />
-                        <span className="truncate">Read the original article</span>
-                    </a>
-                )}
-
                 {post.imageUrl && (
                     <Image
                         src={post.imageUrl}
@@ -98,8 +100,24 @@ export function PostCard({ post, onVote, detailed = false, canDelete = false, on
                         // optimizer rejects; load those directly.
                         unoptimized={!isOptimizedImageHost(post.imageUrl)}
                         sizes="(max-width: 768px) 100vw, 640px"
-                        className="mt-3 h-auto w-full rounded-lg border border-gray-800 bg-gray-950"
+                        className={cn(
+                            "mt-3 h-auto w-full rounded-lg border border-gray-800 bg-gray-950",
+                            // Keep very tall images from dominating the feed; the post page shows them whole.
+                            !detailed && "max-h-[28rem] object-cover"
+                        )}
                     />
+                )}
+
+                {post.sourceUrl && (
+                    <a
+                        href={post.sourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer nofollow"
+                        className="mt-2.5 inline-flex max-w-full items-center gap-1.5 text-xs text-brand-400 hover:text-brand-300"
+                    >
+                        <ExternalLinkIcon className="size-3.5 shrink-0" />
+                        <span className="truncate">Read on {sourceHost(post.sourceUrl)}</span>
+                    </a>
                 )}
             </section>
 

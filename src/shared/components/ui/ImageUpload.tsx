@@ -65,7 +65,7 @@ export function ImageUpload({
         type="button"
         onClick={() => inputRef.current?.click()}
         disabled={uploading}
-        className="flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-gray-800 bg-gray-800 py-8 text-sm text-gray-400 transition-colors hover:border-gray-600 hover:bg-gray-700 hover:text-gray-200 disabled:opacity-50"
+        className="flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-gray-700 bg-gray-900 py-8 text-sm text-gray-400 transition-colors hover:border-brand-500/60 hover:bg-gray-800/60 hover:text-gray-200 disabled:opacity-50"
       >
         {uploading ? <Loader2 className="size-6 animate-spin" /> : <ImagePlus className="size-6" />}
         {uploading ? "Uploading..." : label}

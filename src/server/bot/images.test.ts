@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { resolvePostImage } from "./images";
+import { preferNativeCrop, resolvePostImage } from "./images";
 import type { FeedItem } from "./sources";
 
 const item = (overrides: Partial<FeedItem> = {}): FeedItem => ({
@@ -74,5 +74,36 @@ describe("resolvePostImage", () => {
     await expect(resolvePostImage(item({ url: "https://news.google.com/rss/articles/abc", thumbnailUrl: "https://cdn.example.com/page.html" }))).resolves.toBeNull();
     await expect(resolvePostImage(item({ url: "https://news.google.com/rss/articles/abc", thumbnailUrl: "https://cdn.example.com/logo.svg" }))).resolves.toBeNull();
     expect(requested.some((u) => u.includes("news.google.com"))).toBe(false);
+  });
+});
+
+describe("resolvePostImage: dev.to", () => {
+  const article = "https://dev.to/jane/my-post-1abc";
+
+  it("uses the article's real cover from the dev.to API", async () => {
+    routeFetch({
+      "https://dev.to/api/articles/jane/my-post-1abc": () => Response.json({ cover_image: "https://media2.dev.to/dynamic/image/width=1000,height=420/cover.png" }),
+      "https://media2.dev.to/dynamic/image/width=1000,height=420/cover.png": image,
+    });
+    await expect(resolvePostImage(item({ url: article }))).resolves.toBe("https://media2.dev.to/dynamic/image/width=1000,height=420/cover.png");
+  });
+
+  it("never falls back to the generated title card when there is no cover", async () => {
+    const requested = routeFetch({ "https://dev.to/api/articles/jane/my-post-1abc": () => Response.json({ cover_image: null }) });
+    await expect(resolvePostImage(item({ url: article, thumbnailUrl: "https://cdn.example.com/x.jpg" }))).resolves.toBeNull();
+    expect(requested).not.toContain(article);
+  });
+});
+
+describe("preferNativeCrop", () => {
+  it("requests dev.to covers at their native 1000×420 instead of the cropped social size", () => {
+    expect(
+      preferNativeCrop("https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto/https%3A%2F%2Fx.png")
+    ).toBe("https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto/https%3A%2F%2Fx.png");
+  });
+
+  it("leaves other images untouched", () => {
+    expect(preferNativeCrop("https://cdn.example.com/width=1200,height=627.png")).toBe("https://cdn.example.com/width=1200,height=627.png");
+    expect(preferNativeCrop(null)).toBeNull();
   });
 });

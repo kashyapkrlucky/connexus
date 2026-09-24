@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SearchPageView } from "@/features/search/components/SearchPageView";
+import { PageHeader } from "@/shared/components/layout/PageHeader";
 
 export const metadata: Metadata = { title: "Search" };
 
@@ -8,8 +9,8 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
   const initialQuery = typeof q === "string" ? q : "";
 
   return (
-    <div className="mx-auto max-w-2xl">
-      <h1 className="mb-4 text-2xl font-bold tracking-tight text-gray-200">Search</h1>
+    <div className="mx-auto flex max-w-2xl flex-col gap-6">
+      <PageHeader title="Search" />
       <SearchPageView initialQuery={initialQuery} />
     </div>
   );

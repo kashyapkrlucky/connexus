@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { BookOpenIcon, BugIcon, LightbulbIcon, type LucideIcon } from "lucide-react";
+import { PageHeader } from "@/shared/components/layout/PageHeader";
 
 export const metadata: Metadata = { title: "Support" };
 
@@ -35,10 +36,7 @@ const OPTIONS: { icon: LucideIcon; title: string; body: string; href: string; ct
 export default function SupportPage() {
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-6">
-      <header>
-        <h1 className="text-2xl font-bold tracking-tight text-gray-200">Support</h1>
-        <p className="mt-2 text-sm text-gray-400">Running into a problem or have feedback? Here&apos;s where to go.</p>
-      </header>
+      <PageHeader title="Support" description="Running into a problem or have feedback? Here's where to go." />
 
       <div className="flex flex-col gap-3">
         {OPTIONS.map(({ icon: Icon, title, body, href, cta, external }) => (

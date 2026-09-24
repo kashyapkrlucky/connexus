@@ -8,14 +8,7 @@ import { Skeleton } from "@/shared/components/ui/Skeleton";
 import { EmptyState } from "@/shared/components/ui/EmptyState";
 import { InfiniteScrollTrigger } from "@/shared/components/ui/InfiniteScrollTrigger";
 import { useProfileStore } from "../store/useProfileStore";
-import type { PostSort } from "@/shared/constants";
-
-const SORT_TABS = [
-  { value: "recent", label: "New" },
-  { value: "top", label: "Top" },
-  { value: "hot", label: "Hot" },
-  { value: "views", label: "Most Viewed" },
-];
+import { FEED_SORT_TABS, type PostSort } from "@/shared/constants";
 
 interface ProfilePostsFeedProps {
   username: string;
@@ -40,7 +33,7 @@ export function ProfilePostsFeed({ username }: ProfilePostsFeedProps) {
 
   return (
     <div className="flex flex-col gap-3 max-w-xl">
-      <Tabs items={SORT_TABS} value={postsSort} onChange={(v) => setPostsSort(v as PostSort)} />
+      <Tabs items={FEED_SORT_TABS} value={postsSort} onChange={(v) => setPostsSort(v as PostSort)} />
 
       {postsLoading ? (
         <div className="space-y-3">

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ChevronDownIcon } from "lucide-react";
+import { PageHeader } from "@/shared/components/layout/PageHeader";
 
 export const metadata: Metadata = { title: "Help" };
 
@@ -76,7 +77,7 @@ const SECTIONS: { title: string; faqs: { question: string; answer: React.ReactNo
 export default function HelpPage() {
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-6">
-      <h1 className="text-2xl font-bold tracking-tight text-gray-200">Help Center</h1>
+      <PageHeader title="Help Center" description="Answers to common questions about Connexus." />
 
       {SECTIONS.map((section) => (
         <section key={section.title}>

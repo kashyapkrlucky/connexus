@@ -8,7 +8,7 @@ import { useSidebarStore } from "@/features/sidebar/store/useSidebarStore";
 import { Avatar } from "../ui/Avatar";
 import { RankBadge } from "../ui/RankBadge";
 import { Skeleton } from "../ui/Skeleton";
-import { formatCompactNumber } from "@/shared/utils/format";
+import { formatCompactNumber, pluralize } from "@/shared/utils/format";
 import { formatRelativeTime } from "@/shared/utils/date";
 
 interface RightSidePanelProps {
@@ -83,7 +83,7 @@ export function RightSidePanel({ children, className }: RightSidePanelProps) {
   }, [authLoading, isAuthenticated, getExplore, getScore]);
 
   return (
-    <aside className={`h-full w-72 shrink-0 space-y-3 border-l border-border/40 p-3 ${className ?? ""}`}>
+    <aside className={`w-72 shrink-0 space-y-3 border-l border-border/40 p-3 ${className ?? ""}`}>
       <SectionCard icon={<FlameIcon className="size-3.5" />} title="Trending today" viewMoreHref="/explore">
         {trendingLoading ? (
           <ListSkeleton />
@@ -101,7 +101,7 @@ export function RightSidePanel({ children, className }: RightSidePanelProps) {
                     <Avatar name={c.name} src={c.iconUrl} size={26} />
                     <span className="truncate">c/{c.slug}</span>
                   </span>
-                  <span className="shrink-0 text-xs text-gray-500">{formatCompactNumber(c.postsToday)} posts</span>
+                  <span className="shrink-0 text-xs text-gray-500">{formatCompactNumber(c.postsToday)} {pluralize(c.postsToday, "post")}</span>
                 </Link>
               </li>
             ))}

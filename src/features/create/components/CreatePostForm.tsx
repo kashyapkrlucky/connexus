@@ -81,7 +81,9 @@ export default function CreatePostForm() {
       </div>
 
       <div>
-        <label className="mb-1 block text-sm font-medium text-gray-200">Text (optional if you add an image)</label>
+        <label className="mb-1 block text-sm font-medium text-gray-200">
+          Text <span className="font-normal text-gray-500">(optional if you add an image)</span>
+        </label>
         <Textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
@@ -97,8 +99,8 @@ export default function CreatePostForm() {
         previewClassName="w-full h-48"
       />
       {error && <p className="text-sm text-red-500">{error}</p>}
-      <Button type="submit" variant="primary" size="md" disabled={!canSubmit} loading={submitting} className="self-start">
-        Submit
+      <Button type="submit" variant="primary" size="md" disabled={!canSubmit} loading={submitting} className="self-end">
+        Post
       </Button>
     </form>
   );

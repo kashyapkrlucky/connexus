@@ -120,7 +120,7 @@ export default function CreateCommunityForm() {
 
         {error && <p className="text-sm text-red-400">{error}</p>}
 
-        <Button type="submit" disabled={!canSubmit} loading={submitting} className="self-start">
+        <Button type="submit" disabled={!canSubmit} loading={submitting} className="self-end">
             Create community
         </Button>
     </form>

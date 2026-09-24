@@ -10,3 +10,11 @@ export type PostSort = (typeof POST_SORTS)[number];
 
 export const HOME_FEED_SCOPE = "home";
 export const COMMUNITY_FEED_SCOPE = "community";
+
+/** Sort tabs shared by every post feed, in one consistent order. */
+export const FEED_SORT_TABS: { value: PostSort; label: string }[] = [
+  { value: "hot", label: "Hot" },
+  { value: "recent", label: "New" },
+  { value: "top", label: "Top" },
+  { value: "views", label: "Most Viewed" },
+];
