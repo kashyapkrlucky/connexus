@@ -22,11 +22,13 @@ interface PostCardProps {
     onDelete?: () => void;
 }
 
-function sourceHost(url: string): string {
+/** Link label for a curated post's source; aggregator redirects get a generic label. */
+function sourceLabel(url: string): string {
     try {
-        return new URL(url).hostname.replace(/^www\./, "");
+        const host = new URL(url).hostname.replace(/^www\./, "");
+        return host === "news.google.com" ? "Read the full story" : `Read on ${host}`;
     } catch {
-        return "the original site";
+        return "Read the original article";
     }
 }
 
@@ -116,7 +118,7 @@ export function PostCard({ post, onVote, detailed = false, canDelete = false, on
                         className="mt-2.5 inline-flex max-w-full items-center gap-1.5 text-xs text-brand-400 hover:text-brand-300"
                     >
                         <ExternalLinkIcon className="size-3.5 shrink-0" />
-                        <span className="truncate">Read on {sourceHost(post.sourceUrl)}</span>
+                        <span className="truncate">{sourceLabel(post.sourceUrl)}</span>
                     </a>
                 )}
             </section>

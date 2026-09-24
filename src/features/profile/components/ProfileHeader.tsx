@@ -1,59 +1,66 @@
 "use client";
 
-import { CalendarIcon, PencilIcon, UsersIcon } from "lucide-react";
-import type { UserProfileDTO, UserScoreDTO } from "@/server/types/user.types";
+import { BotIcon, CalendarIcon, PencilIcon } from "lucide-react";
+import type { UserProfileDTO } from "@/server/types/user.types";
 import { Avatar } from "@/shared/components/ui/Avatar";
+import { Badge } from "@/shared/components/ui/Badge";
 import { Button } from "@/shared/components/ui/Button";
-import { RankBadge } from "@/shared/components/ui/RankBadge";
 import { formatCompactNumber, pluralize } from "@/shared/utils/format";
-import { formatRelativeTime } from "@/shared/utils/date";
+import { formatMonthYear } from "@/shared/utils/date";
 
 interface ProfileHeaderProps {
   profile: UserProfileDTO;
   isOwnProfile: boolean;
-  ownScore: UserScoreDTO | null;
   onEdit: () => void;
 }
 
-export function ProfileHeader({ profile, isOwnProfile, ownScore, onEdit }: ProfileHeaderProps) {
+function Stat({ value, label }: { value: number; label: string }) {
   return (
-    <div className="rounded-2xl border border-gray-800 bg-gray-900 p-4 sm:p-6">
-      <div className="flex items-start gap-3 sm:gap-4">
-        <Avatar name={profile.displayName} src={profile.avatarUrl} size={64} />
-        <div className="min-w-0 flex-1 self-center">
-          <h1 className="truncate text-lg font-bold text-gray-100">{profile.displayName}</h1>
-          <p className="truncate text-sm text-gray-500">u/{profile.username}</p>
+    <span>
+      <strong className="font-semibold text-gray-200">{formatCompactNumber(value)}</strong> {label}
+    </span>
+  );
+}
+
+/** Mirrors CommunityHeader: banner, overlapping avatar, then everything on one left edge. */
+export function ProfileHeader({ profile, isOwnProfile, onEdit }: ProfileHeaderProps) {
+  const { stats } = profile;
+
+  return (
+    <div className="overflow-hidden rounded-2xl border border-gray-800 bg-gray-900">
+      <div className="h-24 bg-linear-to-br from-brand-900 to-gray-900 sm:h-28" />
+
+      <div className="px-4 pb-5 sm:px-6">
+        <div className="-mt-10 flex items-end justify-between gap-3">
+          <Avatar name={profile.displayName} src={profile.avatarUrl} size={80} className="border-4 border-gray-900" />
+          {isOwnProfile && (
+            <Button variant="outline" size="sm" onClick={onEdit} className="mb-1 whitespace-nowrap">
+              <PencilIcon className="size-3.5" /> Edit profile
+            </Button>
+          )}
         </div>
-        {isOwnProfile && (
-          <Button variant="outline" size="sm" onClick={onEdit} className="shrink-0 whitespace-nowrap" aria-label="Edit profile">
-            <PencilIcon className="size-3.5" /> <span className="hidden sm:inline">Edit profile</span>
-          </Button>
-        )}
-      </div>
 
-      {profile.bio && <p className="mt-3 text-sm text-gray-400">{profile.bio}</p>}
-
-      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500">
-        <span>
-          <strong className="text-gray-200">{formatCompactNumber(profile.stats.postCount)}</strong> {pluralize(profile.stats.postCount, "post")}
-        </span>
-        <span>
-          <strong className="text-gray-200">{formatCompactNumber(profile.stats.karma)}</strong> karma
-        </span>
-        <span className="flex items-center gap-1">
-          <UsersIcon className="size-3" />
-          <strong className="text-gray-200">{formatCompactNumber(profile.stats.communityCount)}</strong> {pluralize(profile.stats.communityCount, "community", "communities")}
-        </span>
-        <span className="flex items-center gap-1">
-          <CalendarIcon className="size-3" /> Joined {formatRelativeTime(profile.createdAt)}
-        </span>
-      </div>
-
-      {isOwnProfile && ownScore && (
-        <div className="mt-4 border-t border-gray-800 pt-4">
-          <RankBadge rank={ownScore.rank} xp={ownScore.xp} />
+        <div className="mt-3 flex min-w-0 items-center gap-2">
+          <h1 className="truncate text-xl font-bold text-gray-100">{profile.displayName}</h1>
+          {profile.isBot && (
+            <Badge tone="blue" className="shrink-0">
+              <BotIcon className="size-3" /> bot
+            </Badge>
+          )}
         </div>
-      )}
+        <p className="text-sm text-gray-500">u/{profile.username}</p>
+
+        {profile.bio && <p className="mt-3 max-w-prose text-sm leading-relaxed text-gray-400">{profile.bio}</p>}
+
+        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500">
+          <Stat value={stats.postCount} label={pluralize(stats.postCount, "post")} />
+          <Stat value={stats.karma} label="karma" />
+          <Stat value={stats.communityCount} label={pluralize(stats.communityCount, "community", "communities")} />
+          <span className="flex items-center gap-1">
+            <CalendarIcon className="size-3" /> Joined {formatMonthYear(profile.createdAt)}
+          </span>
+        </div>
+      </div>
     </div>
   );
 }

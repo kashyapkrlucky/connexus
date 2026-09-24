@@ -61,7 +61,10 @@ export function CommunityPageView({ slug }: CommunityPageViewProps) {
 
       <div className="flex flex-1 flex-col gap-4 lg:flex-row lg:items-start">
         <CommunityPostsFeed slug={slug} />
-        <CommunityGuidelines community={community} canManage={canManage} />
+        {/* Above the feed on phones: an infinite feed would otherwise keep this out of reach. */}
+        <div className="order-first lg:order-none lg:w-80 lg:shrink-0">
+          <CommunityGuidelines community={community} canManage={canManage} />
+        </div>
       </div>
 
       {editOpen && <EditCommunityModal community={community} onClose={() => setEditOpen(false)} />}

@@ -117,6 +117,7 @@ export class UserService {
         displayName: string;
         avatarUrl: string | null;
         bio: string | null;
+        isBot: boolean;
         createdAt: Date;
     }): Promise<UserProfileDTO> {
         const [postCount, postScore, commentScore, memberships] = await Promise.all([
@@ -136,6 +137,7 @@ export class UserService {
             username: user.username,
             displayName: user.displayName,
             avatarUrl: user.avatarUrl,
+            isBot: user.isBot,
             bio: user.bio,
             createdAt: user.createdAt.toISOString(),
             stats: {

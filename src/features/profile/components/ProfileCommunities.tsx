@@ -12,7 +12,7 @@ interface ProfileCommunitiesProps {
 
 export function ProfileCommunities({ communities }: ProfileCommunitiesProps) {
   return (
-    <div className="rounded-2xl border border-gray-700 bg-gray-900 p-3">
+    <div className="rounded-2xl border border-gray-800 bg-gray-900 p-3">
       <h2 className="mb-3 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-400">
         <UsersIcon className="size-3.5" /> Communities
       </h2>

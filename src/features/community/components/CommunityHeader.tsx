@@ -24,11 +24,12 @@ export function CommunityHeader({ community, onToggleMembership, membershipUpdat
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-800 bg-gray-900">
       <div className="relative h-32 w-full bg-linear-to-br from-brand-900 to-gray-900 sm:h-40">
-        {community.bannerUrl && <Image src={community.bannerUrl} alt="" fill className="object-cover border border-gray-800" />}
+        {community.bannerUrl && <Image src={community.bannerUrl} alt="" fill className="object-cover" />}
       </div>
 
       <div className="px-4 pb-4 sm:px-6 sm:pb-6">
-        <div className="-mt-10 flex items-end justify-between gap-3 sm:-mt-12">
+        {/* relative: paint above the (positioned) banner so the icon overlaps it instead of hiding under it. */}
+        <div className="relative -mt-10 flex items-end justify-between gap-3 sm:-mt-12">
           <Avatar name={community.name} src={community.iconUrl} size={80} className="shrink-0 border-4 border-gray-900" />
           <div className="flex items-center gap-2 pb-1">
             {canManage && (

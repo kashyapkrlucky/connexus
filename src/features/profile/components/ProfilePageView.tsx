@@ -1,13 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { UserXIcon } from "lucide-react";
+import Link from "next/link";
+import { FileTextIcon, PenSquareIcon, UserXIcon } from "lucide-react";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import { useProfileStore } from "@/features/profile/store/useProfileStore";
 import { ProfileHeader } from "@/features/profile/components/ProfileHeader";
 import { ProfilePostsFeed } from "@/features/profile/components/ProfilePostsFeed";
 import { ProfileCommunities } from "@/features/profile/components/ProfileCommunities";
 import { EditProfileModal } from "@/features/profile/components/EditProfileModal";
+import { ProfileRankCard } from "@/features/profile/components/ProfileRankCard";
 import { Skeleton } from "@/shared/components/ui/Skeleton";
 import { EmptyState } from "@/shared/components/ui/EmptyState";
 
@@ -50,11 +52,38 @@ export function ProfilePageView({ username }: ProfilePageViewProps) {
 
   return (
     <div className="mx-auto flex max-w-4xl flex-col gap-4">
-      <ProfileHeader profile={profile} isOwnProfile={isOwnProfile} ownScore={ownScore} onEdit={() => setEditOpen(true)} />
+      <ProfileHeader profile={profile} isOwnProfile={isOwnProfile} onEdit={() => setEditOpen(true)} />
 
-      <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[1fr_280px]">
-        <ProfilePostsFeed username={username} />
-        <ProfileCommunities communities={profile.communities} />
+      <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
+        {profile.stats.postCount > 0 ? (
+          <ProfilePostsFeed username={username} />
+        ) : (
+          <EmptyState
+            icon={FileTextIcon}
+            title={isOwnProfile ? "You haven't posted yet" : "No posts yet"}
+            description={
+              isOwnProfile
+                ? "Share something with one of your communities — it'll show up here."
+                : `u/${profile.username} hasn't posted anything yet.`
+            }
+            action={
+              isOwnProfile ? (
+                <Link
+                  href="/create"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-brand-500 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-brand-600"
+                >
+                  <PenSquareIcon className="size-4" /> Create a post
+                </Link>
+              ) : undefined
+            }
+          />
+        )}
+
+        {/* Above the feed on phones: an infinite feed would otherwise keep this out of reach. */}
+        <div className="order-first flex flex-col gap-4 lg:order-none">
+          {isOwnProfile && ownScore && <ProfileRankCard score={ownScore} />}
+          <ProfileCommunities communities={profile.communities} />
+        </div>
       </div>
 
       {editOpen && <EditProfileModal profile={profile} onClose={() => setEditOpen(false)} />}

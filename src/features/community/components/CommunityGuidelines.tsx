@@ -14,7 +14,7 @@ export function CommunityGuidelines({ community, canManage }: CommunityGuideline
   const [editing, setEditing] = useState(false);
 
   return (
-    <div className="rounded-2xl border border-gray-700 bg-gray-900 p-3">
+    <div className="rounded-2xl border border-gray-800 bg-gray-900 p-3">
       <div className="mb-3 flex items-center justify-between gap-2">
         <h2 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-400">
           <BookOpenIcon className="size-3.5" /> Guidelines

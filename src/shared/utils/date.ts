@@ -14,3 +14,8 @@ export function formatRelativeTime(date: Date | string): string {
   const years = Math.floor(months / 12);
   return `${years}y ago`;
 }
+
+/** "September 2026" — for join and creation dates, where a relative time reads oddly. */
+export function formatMonthYear(date: Date | string): string {
+  return new Date(date).toLocaleDateString("en-US", { month: "long", year: "numeric" });
+}

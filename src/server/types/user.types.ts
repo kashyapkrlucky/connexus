@@ -13,6 +13,7 @@ export interface UserProfileDTO {
   username: string;
   displayName: string;
   avatarUrl: string | null;
+  isBot: boolean;
   bio: string | null;
   createdAt: string;
   stats: {
