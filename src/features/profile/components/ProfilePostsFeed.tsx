@@ -6,7 +6,7 @@ import { PostCard } from "@/features/home/components/PostCard";
 import { Tabs } from "@/shared/components/ui/Tabs";
 import { Skeleton } from "@/shared/components/ui/Skeleton";
 import { EmptyState } from "@/shared/components/ui/EmptyState";
-import { Button } from "@/shared/components/ui/Button";
+import { InfiniteScrollTrigger } from "@/shared/components/ui/InfiniteScrollTrigger";
 import { useProfileStore } from "../store/useProfileStore";
 import type { PostSort } from "@/shared/constants";
 
@@ -25,11 +25,10 @@ export function ProfilePostsFeed({ username }: ProfilePostsFeedProps) {
   const {
     posts,
     postsLoading,
+    postsLoadingMore,
     postsSort,
     setPostsSort,
     postsPage,
-    postsPageSize,
-    postsTotal,
     postsHasMore,
     getPosts,
     votePost,
@@ -38,8 +37,6 @@ export function ProfilePostsFeed({ username }: ProfilePostsFeedProps) {
   useEffect(() => {
     getPosts(username, 1);
   }, [username, postsSort, getPosts]);
-
-  const totalPages = Math.max(1, Math.ceil(postsTotal / postsPageSize));
 
   return (
     <div className="flex flex-col gap-3 max-w-xl">
@@ -58,29 +55,11 @@ export function ProfilePostsFeed({ username }: ProfilePostsFeedProps) {
             <PostCard key={post.id} post={post} onVote={votePost} />
           ))}
 
-          {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-3 pt-2">
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={postsPage <= 1}
-                onClick={() => getPosts(username, postsPage - 1)}
-              >
-                Previous
-              </Button>
-              <span className="text-xs text-gray-500">
-                Page {postsPage} of {totalPages}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={!postsHasMore}
-                onClick={() => getPosts(username, postsPage + 1)}
-              >
-                Next
-              </Button>
-            </div>
-          )}
+          <InfiniteScrollTrigger
+            hasMore={postsHasMore}
+            loading={postsLoadingMore}
+            onLoadMore={() => getPosts(username, postsPage + 1)}
+          />
         </>
       )}
     </div>

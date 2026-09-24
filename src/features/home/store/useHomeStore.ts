@@ -7,6 +7,9 @@ import type { CommunitySummaryDTO } from "@/server/types/community.types";
 import type { Paginated } from "@/server/types/common.types";
 import type { PostSort } from "../types";
 import { voteDelta } from "@/shared/utils/vote";
+import { appendUnique } from "@/shared/utils/paginate";
+
+const PAGE_SIZE = 20;
 
 type VoteValue = "UP" | "DOWN";
 
@@ -16,7 +19,11 @@ interface HomeStore {
   getMemberships: () => void;
   posts: PostDTO[];
   postsLoading: boolean;
-  getPosts: (sort: PostSort) => Promise<void>;
+  /** True while fetching page 2+; the list stays visible. */
+  postsLoadingMore: boolean;
+  postsPage: number;
+  postsHasMore: boolean;
+  getPosts: (sort: PostSort, page?: number) => Promise<void>;
   votePost: (postId: string, value: VoteValue) => Promise<void>;
 }
 
@@ -35,18 +42,26 @@ export const useHomeStore = create<HomeStore>((set, get) => ({
   },
   posts: [],
   postsLoading: false,
-  getPosts: async (sort) => {
-    set({ postsLoading: true });
+  postsLoadingMore: false,
+  postsPage: 1,
+  postsHasMore: false,
+  getPosts: async (sort, page = 1) => {
+    if (page > 1 && (get().postsLoadingMore || !get().postsHasMore)) return;
+    set(page === 1 ? { postsLoading: true } : { postsLoadingMore: true });
     try {
       const { data } = await internalApi.get<Paginated<PostDTO>>("/v1/posts", {
-        params: { scope: "home", sort },
+        params: { scope: "home", sort, page, pageSize: PAGE_SIZE },
       });
-      set({ posts: data.items });
+      set({
+        posts: page === 1 ? data.items : appendUnique(get().posts, data.items),
+        postsPage: data.page,
+        postsHasMore: data.hasMore,
+      });
     } catch (error) {
       console.error(error);
       toast.error(getErrorMessage(error, "Couldn't load posts"));
     } finally {
-      set({ postsLoading: false });
+      set({ postsLoading: false, postsLoadingMore: false });
     }
   },
 

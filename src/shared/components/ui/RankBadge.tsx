@@ -3,7 +3,7 @@ import { cn } from "@/shared/utils/cn";
 import type { UserRankDTO } from "@/server/types/user.types";
 
 // Keys here must match the `color` values produced by src/server/utils/rank.ts.
-const RANK_COLOR_CLASSES: Record<string, { text: string; bg: string; ring: string; bar: string }> = {
+export const RANK_COLOR_CLASSES: Record<string, { text: string; bg: string; ring: string; bar: string }> = {
   gray: { text: "text-gray-300", bg: "bg-gray-500/15", ring: "ring-gray-500/30", bar: "bg-gray-400" },
   emerald: { text: "text-emerald-400", bg: "bg-emerald-500/15", ring: "ring-emerald-500/30", bar: "bg-emerald-400" },
   sky: { text: "text-sky-400", bg: "bg-sky-500/15", ring: "ring-sky-500/30", bar: "bg-sky-400" },

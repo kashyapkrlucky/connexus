@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import internalApi from "@/lib/http/internal";
 import { getErrorMessage } from "@/lib/http/errors";
 import { voteDelta } from "@/shared/utils/vote";
+import { appendUnique } from "@/shared/utils/paginate";
 import type { UserProfileDTO, UserScoreDTO } from "@/server/types/user.types";
 import type { PostDTO } from "@/server/types/post.types";
 import type { Paginated } from "@/server/types/common.types";
@@ -33,6 +34,8 @@ interface ProfileStore {
   postsPageSize: number;
   postsHasMore: boolean;
   postsLoading: boolean;
+  /** True while fetching page 2+; the list stays visible. */
+  postsLoadingMore: boolean;
   postsSort: PostSort;
   setPostsSort: (sort: PostSort) => void;
   getPosts: (username: string, page?: number) => Promise<void>;
@@ -96,19 +99,26 @@ export const useProfileStore = create<ProfileStore>((set, get) => ({
   postsPageSize: PAGE_SIZE,
   postsHasMore: false,
   postsLoading: false,
+  postsLoadingMore: false,
   postsSort: "recent",
   setPostsSort: (sort) => set({ postsSort: sort }),
   getPosts: async (username, page = 1) => {
-    set({ postsLoading: true });
+    if (page > 1 && (get().postsLoadingMore || !get().postsHasMore)) return;
+    set(page === 1 ? { postsLoading: true } : { postsLoadingMore: true });
     try {
       const { data } = await internalApi.get<Paginated<PostDTO>>("/v1/posts", {
         params: { scope: "user", username, sort: get().postsSort, page, pageSize: PAGE_SIZE },
       });
-      set({ posts: data.items, postsTotal: data.total, postsPage: data.page, postsHasMore: data.hasMore });
+      set({
+        posts: page === 1 ? data.items : appendUnique(get().posts, data.items),
+        postsTotal: data.total,
+        postsPage: data.page,
+        postsHasMore: data.hasMore,
+      });
     } catch (error) {
       toast.error(getErrorMessage(error, "Couldn't load posts"));
     } finally {
-      set({ postsLoading: false });
+      set({ postsLoading: false, postsLoadingMore: false });
     }
   },
 

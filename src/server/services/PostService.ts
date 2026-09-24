@@ -115,12 +115,17 @@ export class PostService {
             ],
         };
 
-        const posts = await prisma.posts.findMany({
+        // Over-fetch, then rank title matches above body-only matches (Prisma can't
+        // order by "which column matched"), keeping score order within each group.
+        const candidates = await prisma.posts.findMany({
             where,
             include: POST_INCLUDE,
-            orderBy: { score: "desc" },
-            take: limit,
+            orderBy: [{ score: "desc" }, { createdAt: "desc" }],
+            take: limit * 4,
         });
+        const needle = q.toLowerCase();
+        const titleMatch = (p: PostWithRelations) => (p.title.toLowerCase().includes(needle) ? 0 : 1);
+        const posts = candidates.sort((a, b) => titleMatch(a) - titleMatch(b)).slice(0, limit);
 
         return PostService.attachVotes(posts, viewerId);
     }

@@ -1,11 +1,12 @@
 "use client"
 import Image from "next/image";
 import { Login } from "@/features/auth/components/Login";
-import { PenSquareIcon } from "lucide-react";
+import { PenSquareIcon, SearchIcon } from "lucide-react";
 import Link from "next/link";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import { UserMenu } from "@/features/auth/components/UserMenu";
 import { MobileNav } from "./MobileNav";
+import { SearchBox } from "@/features/search/components/SearchBox";
 
 export function TopBar() {
 
@@ -25,13 +26,16 @@ export function TopBar() {
           />
         </Link>
 
-        <input
-          type="search"
-          placeholder="Search"
-          className="hidden w-full max-w-sm rounded border md:block border-border/40 bg-background px-3 py-1.5 text-sm text-foreground placeholder:text-foreground/40 focus:border-accent focus:outline-none"
-        />
+        <SearchBox />
 
         <div className="ml-auto flex items-center gap-2">
+          <Link
+            href="/search"
+            aria-label="Search"
+            className="rounded-lg p-1.5 text-gray-300 transition-colors hover:bg-gray-800 hover:text-gray-100 md:hidden"
+          >
+            <SearchIcon className="size-5" />
+          </Link>
           {isLoading ? null : user ? <>
             <Link
               href="/create"

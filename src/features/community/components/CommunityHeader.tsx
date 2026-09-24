@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { CalendarIcon, GlobeIcon, LockIcon, PencilIcon } from "lucide-react";
+import { BarChart3Icon, CalendarIcon, GlobeIcon, LockIcon, PencilIcon } from "lucide-react";
 import type { CommunityDetailDTO } from "@/server/types/community.types";
 import { Avatar } from "@/shared/components/ui/Avatar";
 import { Button } from "@/shared/components/ui/Button";
@@ -15,9 +15,10 @@ interface CommunityHeaderProps {
   onToggleMembership: () => void;
   membershipUpdating: boolean;
   onEdit: () => void;
+  onAnalytics: () => void;
 }
 
-export function CommunityHeader({ community, onToggleMembership, membershipUpdating, onEdit }: CommunityHeaderProps) {
+export function CommunityHeader({ community, onToggleMembership, membershipUpdating, onEdit, onAnalytics }: CommunityHeaderProps) {
   const canManage = community.viewerRole === "OWNER" || community.viewerRole === "MODERATOR";
 
   return (
@@ -31,9 +32,14 @@ export function CommunityHeader({ community, onToggleMembership, membershipUpdat
           <Avatar name={community.name} src={community.iconUrl} size={80} className="shrink-0 border-4 border-gray-900" />
           <div className="flex items-center gap-2 pb-1">
             {canManage && (
-              <Button variant="outline" size="sm" onClick={onEdit}>
-                <PencilIcon className="size-3.5" /> Edit
-              </Button>
+              <>
+                <Button variant="outline" size="sm" onClick={onAnalytics}>
+                  <BarChart3Icon className="size-3.5" /> Analytics
+                </Button>
+                <Button variant="outline" size="sm" onClick={onEdit}>
+                  <PencilIcon className="size-3.5" /> Edit
+                </Button>
+              </>
             )}
             {community.viewerIsBanned ? (
               <Badge tone="red">Banned</Badge>

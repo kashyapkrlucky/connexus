@@ -30,7 +30,7 @@ Connexus is a Reddit-style community platform: create or join communities, post,
 ## Highlights
 
 - **AI community bot**: a scheduled Trigger.dev job pulls fresh items from RSS, dev.to and Hacker News, and an LLM picks the most relevant one per community and writes a summary, a "why it matters" line and a discussion question. [How it works ↓](#community-bot)
-- **Real community mechanics**: public/private communities, Owner / Moderator / Member roles, invites, bans, guidelines and an owner analytics dashboard.
+- **Real community mechanics**: public/private communities, Owner / Moderator / Member roles, invites, bans, guidelines, and an analytics dashboard with 30-day trends from daily snapshots.
 - **Ranking that behaves**: Reddit-style hot score, atomic vote recounts, and views/shares counted once per person.
 - **Gamification**: XP for contributing and an 8-tier rank ladder (Newcomer → … → Mythic) with progress to the next rank.
 - **Google sign-in** with Auth.js; browsing works without an account.
@@ -42,7 +42,7 @@ Connexus is a Reddit-style community platform: create or join communities, post,
 - Public or private communities with Owner / Moderator / Member roles
 - Join, leave, invite to private communities, ban/unban
 - Member-editable guidelines
-- Analytics dashboard for owners and moderators
+- Analytics dashboard for owners and moderators: live totals plus 30-day member and post trends
 
 **Posts & comments**
 - Text and image posts (Supabase Storage), sorted by Hot / Top / Recent / Most Viewed
@@ -50,9 +50,9 @@ Connexus is a Reddit-style community platform: create or join communities, post,
 - View and share counters, de-duplicated per viewer
 
 **Discovery**
-- Personalized home feed (your communities), sitewide Popular feed
+- Personalized home feed (your communities), sitewide Popular feed, infinite scroll everywhere
 - Explore: Trending Today + communities you haven't joined yet
-- Search API across posts, communities and users
+- Instant search across communities, people and posts, with a live dropdown and a full results page
 - "What's Happening": live world headlines from Google News
 
 **Accounts**
@@ -102,11 +102,13 @@ flowchart TD
     end
 
     subgraph Jobs["Trigger.dev"]
-        Schedule["community-bot-schedule"] --> Bot["CommunityBotService"]
+        Schedule["community-bot-schedule<br/>every 15 min"] --> Bot["CommunityBotService"]
+        Daily["community-analytics-daily<br/>00:05 UTC"] --> Snap["CommunityAnalyticsService"]
     end
 
     Services --> Prisma["Prisma Client"]
     Bot --> Prisma
+    Snap --> Prisma
     Bot --> Sources["RSS · dev.to · Hacker News"]
     Bot --> OpenAI["OpenAI"]
     Prisma --> DB[("PostgreSQL · Neon")]
@@ -123,6 +125,7 @@ flowchart TD
 | **Atomic score recount** | A vote upserts the row, then recounts and writes the score in a *single* `UPDATE … SET score = (SELECT …)`, so concurrent votes can never persist a stale total. |
 | **Engagement de-duplication** | Views and shares insert into `post_engagements (postId, viewerKey, kind)` with `skipDuplicates`; the counter only increments when a row is actually inserted. Anonymous viewers are keyed by a salted hash, never raw IPs. |
 | **Hot score** | Reddit's formula: `sign(score)·log10(max(abs(score),1)) + age/45000`. It is stored on the post and indexed, so the Hot sort is a plain `ORDER BY`. |
+| **Daily analytics snapshots** | A scheduled job records each community's members, posts, votes and views per day, computed with a few grouped queries rather than one query per community. Counts derive from timestamps, so history can be backfilled (`npm run analytics:backfill`). |
 | **Background jobs on Trigger.dev** | Serverless functions can't run cron or long jobs reliably. Trigger.dev provides schedules, retries, idempotency keys and run logs, and it deploys separately from the web app. |
 | **Neon + Prisma driver adapter** | Serverless Postgres over WebSockets works in both Vercel functions and Trigger.dev workers. |
 
@@ -185,7 +188,7 @@ src/
 │   └── page.tsx               # Home feed
 ├── features/                  # One folder per feature: components/ + store/
 │   └── auth/                  # Auth.js config, session hook, sign-in UI
-├── jobs/                      # Trigger.dev tasks (community bot schedule)
+├── jobs/                      # Trigger.dev tasks (community bot, daily analytics)
 ├── server/
 │   ├── bot/                   # Feed readers + LLM post writer
 │   ├── schemas/               # Zod input schemas
@@ -194,7 +197,7 @@ src/
 │   └── utils/                 # hotScore, rank, viewerKey, response helpers
 ├── shared/components/         # UI kit (Button, Modal, Avatar, ...) + layout
 └── infra/                     # Prisma and Supabase clients
-scripts/                       # bot-once.ts: run the bot manually
+scripts/                       # Run the bot once, backfill analytics
 prisma/                        # Schema + migrations (incl. seed data for the bot)
 ```
 
@@ -230,6 +233,7 @@ Every variable is documented in [`.env.example`](.env.example).
 | `npm run db:migrate` | Apply Prisma migrations |
 | `npm run db:studio` | Browse the database in Prisma Studio |
 | `npm run bot:once -- [slug] [--force]` | Run the community bot once, locally |
+| `npm run analytics:backfill -- [days]` | Backfill daily analytics snapshots (default 30 days) |
 | `npm run jobs:dev` | Run Trigger.dev tasks locally (schedules included) |
 
 ### Deploying

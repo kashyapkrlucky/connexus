@@ -12,9 +12,10 @@ import { EmptyState } from "@/shared/components/ui/EmptyState";
 import { PostSort } from "@/features/home/types";
 import { PostCard } from "@/features/home/components/PostCard";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
+import { InfiniteScrollTrigger } from "@/shared/components/ui/InfiniteScrollTrigger";
 
 export default function Home() {
-  const { getMemberships, posts, postsLoading, getPosts, votePost } = useHomeStore();
+  const { getMemberships, posts, postsLoading, postsLoadingMore, postsPage, postsHasMore, getPosts, votePost } = useHomeStore();
   const TABS = [
     { value: "top", label: "Top" },
     { value: "recent", label: "Recent" },
@@ -55,7 +56,16 @@ export default function Home() {
               description="Join some communities to start seeing posts in your home feed."
             />
           ) : (
-            posts.map((post) => <PostCard key={post.id} post={post} onVote={votePost} />)
+            <>
+              {posts.map((post) => (
+                <PostCard key={post.id} post={post} onVote={votePost} />
+              ))}
+              <InfiniteScrollTrigger
+                hasMore={postsHasMore}
+                loading={postsLoadingMore}
+                onLoadMore={() => getPosts(sort, postsPage + 1)}
+              />
+            </>
           )}
         </main>
 
