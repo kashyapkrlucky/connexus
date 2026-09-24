@@ -1,72 +1,31 @@
-"use client";
-
-import { use, useEffect, useState } from "react";
-import { LockIcon } from "lucide-react";
-import { useCommunityStore } from "@/features/community/store/useCommunityStore";
-import { CommunityHeader } from "@/features/community/components/CommunityHeader";
-import { CommunityPostsFeed } from "@/features/community/components/CommunityPostsFeed";
-import { CommunityGuidelines } from "@/features/community/components/CommunityGuidelines";
-import { EditCommunityModal } from "@/features/community/components/EditCommunityModal";
-import { CommunityAnalyticsModal } from "@/features/community/components/CommunityAnalyticsModal";
-import { Skeleton } from "@/shared/components/ui/Skeleton";
-import { EmptyState } from "@/shared/components/ui/EmptyState";
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { getCommunityForPage } from "@/server/pageData";
+import { CommunityPageView } from "@/features/community/components/CommunityPageView";
+import { toExcerpt } from "@/shared/constants/site";
 
 interface CommunityPageProps {
   params: Promise<{ slug: string }>;
 }
 
-export default function CommunityPage({ params }: CommunityPageProps) {
-  const { slug } = use(params);
-  const { community, communityLoading, communityNotFound, getCommunity, reset, membershipUpdating, toggleMembership } =
-    useCommunityStore();
-  const [editOpen, setEditOpen] = useState(false);
-  const [analyticsOpen, setAnalyticsOpen] = useState(false);
+export async function generateMetadata({ params }: CommunityPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const community = await getCommunityForPage(slug);
+  if (!community) return { title: "Community not found", robots: { index: false } };
 
-  useEffect(() => {
-    reset();
-    getCommunity(slug);
-  }, [slug, getCommunity, reset]);
+  const description =
+    toExcerpt(community.description) ?? `Join c/${community.slug} on Connexus.`;
+  return {
+    title: `${community.name} (c/${community.slug})`,
+    description,
+    alternates: { canonical: `/c/${community.slug}` },
+    robots: community.visibility === "PRIVATE" ? { index: false, follow: false } : undefined,
+    openGraph: { title: `c/${community.slug}`, description },
+  };
+}
 
-  if (communityLoading || (!community && !communityNotFound)) {
-    return (
-      <div className="mx-auto max-w-4xl space-y-3">
-        <Skeleton className="h-40 w-full" />
-        <Skeleton className="h-40 w-full" />
-      </div>
-    );
-  }
-
-  if (!community) {
-    return (
-      <div className="mx-auto max-w-xl">
-        <EmptyState
-          icon={LockIcon}
-          title="Community not found"
-          description="It may not exist, or it's private and you're not a member."
-        />
-      </div>
-    );
-  }
-
-  const canManage = community.viewerRole === "OWNER" || community.viewerRole === "MODERATOR";
-
-  return (
-    <div className="mx-auto flex max-w-4xl flex-col gap-4">
-      <CommunityHeader
-        community={community}
-        onToggleMembership={toggleMembership}
-        membershipUpdating={membershipUpdating}
-        onEdit={() => setEditOpen(true)}
-        onAnalytics={() => setAnalyticsOpen(true)}
-      />
-
-      <div className="flex flex-1 flex-col gap-4 lg:flex-row lg:items-start">
-        <CommunityPostsFeed slug={slug} />
-        <CommunityGuidelines community={community} canManage={canManage} />
-      </div>
-
-      {editOpen && <EditCommunityModal community={community} onClose={() => setEditOpen(false)} />}
-      {analyticsOpen && <CommunityAnalyticsModal slug={slug} onClose={() => setAnalyticsOpen(false)} />}
-    </div>
-  );
+export default async function CommunityPage({ params }: CommunityPageProps) {
+  const { slug } = await params;
+  if (!(await getCommunityForPage(slug))) notFound();
+  return <CommunityPageView slug={slug} />;
 }

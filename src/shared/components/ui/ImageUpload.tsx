@@ -31,7 +31,7 @@ export function ImageUpload({
     try {
       const { url } = await onUpload(file);
       onChange(url);
-    } catch (err) {
+    } catch {
       // setError(extractErrorMessage(err, "Couldn't upload image"));
     } finally {
       setUploading(false);

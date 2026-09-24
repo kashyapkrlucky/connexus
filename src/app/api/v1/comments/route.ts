@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { getCurrentUserId } from "@/features/auth/server";
+import { enforceRateLimit } from "@/server/utils/rateLimit";
 import { CommentService } from "@/server/services/CommentService";
 import { createCommentSchema } from "@/server/schemas/comment.schema";
 import { ApiError, handleApiError, jsonOk } from "@/server/utils/response";
@@ -8,6 +9,7 @@ export async function POST(req: NextRequest) {
     try {
         const userId = await getCurrentUserId();
         if (!userId) throw new ApiError("Unauthorized", 401);
+        await enforceRateLimit("comment", userId);
 
         const body = await req.json();
         const input = createCommentSchema.parse(body);

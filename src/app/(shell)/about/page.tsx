@@ -5,7 +5,7 @@ import { RANK_TIERS, XP_WEIGHTS } from "@/server/utils/rank";
 import { RANK_COLOR_CLASSES } from "@/shared/components/ui/RankBadge";
 import { cn } from "@/shared/utils/cn";
 
-export const metadata: Metadata = { title: "About · Connexus" };
+export const metadata: Metadata = { title: "About" };
 
 const PILLARS: { icon: LucideIcon; title: string; body: string }[] = [
   {

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { SearchPageView } from "@/features/search/components/SearchPageView";
 
-export const metadata: Metadata = { title: "Search · Connexus" };
+export const metadata: Metadata = { title: "Search" };
 
 export default async function SearchPage({ searchParams }: { searchParams: Promise<{ q?: string | string[] }> }) {
   const { q } = await searchParams;

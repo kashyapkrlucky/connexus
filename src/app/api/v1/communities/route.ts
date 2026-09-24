@@ -1,4 +1,5 @@
 import { getCurrentUserId } from "@/features/auth/server";
+import { enforceRateLimit } from "@/server/utils/rateLimit";
 import { NextRequest } from "next/server";
 import { CommunityService } from "@/server/services/CommunityService";
 import { createCommunitySchema, listCommunitiesQuerySchema } from "@/server/schemas/community.schema";
@@ -20,6 +21,7 @@ export async function POST(req: NextRequest) {
     try {
         const userId = await getCurrentUserId();
         if (!userId) throw new ApiError("Unauthorized", 401);
+        await enforceRateLimit("community", userId);
 
         const body = await req.json();
         const input = createCommunitySchema.parse(body);

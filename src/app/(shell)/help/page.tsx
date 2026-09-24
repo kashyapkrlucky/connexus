@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ChevronDownIcon } from "lucide-react";
 
-export const metadata: Metadata = { title: "Help · Connexus" };
+export const metadata: Metadata = { title: "Help" };
 
 const SECTIONS: { title: string; faqs: { question: string; answer: React.ReactNode }[] }[] = [
   {

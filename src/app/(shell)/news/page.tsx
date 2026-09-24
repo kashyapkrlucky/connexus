@@ -1,4 +1,10 @@
+import type { Metadata } from "next";
 import { NewsView } from "@/features/sidebar/components/NewsView";
+
+export const metadata: Metadata = {
+  title: "What's happening",
+  description: "Top world headlines, refreshed throughout the day.",
+};
 
 export default function NewsPage() {
   return (

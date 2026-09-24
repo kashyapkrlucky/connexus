@@ -32,7 +32,7 @@ export function AvatarUploader({
     try {
       const { url } = await onUpload(file);
       onChange(url);
-    } catch (err) {
+    } catch {
       // setError(extractErrorMessage(err, "Couldn't upload photo"));
     } finally {
       setUploading(false);

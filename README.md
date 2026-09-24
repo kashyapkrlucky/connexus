@@ -6,6 +6,7 @@ Connexus is a Reddit-style community platform: create or join communities, post,
 
 **[Live demo → connexus-v1.vercel.app](https://connexus-v1.vercel.app)**
 
+[![CI](https://github.com/kashyapkrlucky/connexus/actions/workflows/ci.yml/badge.svg)](https://github.com/kashyapkrlucky/connexus/actions/workflows/ci.yml)
 ![Next.js](https://img.shields.io/badge/Next.js_16-000?logo=nextdotjs&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
 ![Prisma](https://img.shields.io/badge/Prisma-2D3748?logo=prisma&logoColor=white)
@@ -35,6 +36,7 @@ Connexus is a Reddit-style community platform: create or join communities, post,
 - **Gamification**: XP for contributing and an 8-tier rank ladder (Newcomer → … → Mythic) with progress to the next rank.
 - **Google sign-in** with Auth.js; browsing works without an account.
 - **Responsive**: full three-column layout on desktop, slide-over navigation on mobile.
+- **Production polish**: per-user rate limits, real 404s, branded link previews for every post and community, a sitemap, and CI on every push.
 
 ## Features
 
@@ -126,6 +128,8 @@ flowchart TD
 | **Engagement de-duplication** | Views and shares insert into `post_engagements (postId, viewerKey, kind)` with `skipDuplicates`; the counter only increments when a row is actually inserted. Anonymous viewers are keyed by a salted hash, never raw IPs. |
 | **Hot score** | Reddit's formula: `sign(score)·log10(max(abs(score),1)) + age/45000`. It is stored on the post and indexed, so the Hot sort is a plain `ORDER BY`. |
 | **Daily analytics snapshots** | A scheduled job records each community's members, posts, votes and views per day, computed with a few grouped queries rather than one query per community. Counts derive from timestamps, so history can be backfilled (`npm run analytics:backfill`). |
+| **Rate limiting in Postgres** | A fixed-window counter updated with one atomic `INSERT … ON CONFLICT DO UPDATE` per write request. It works across serverless instances without adding Redis, and returns `429` with `Retry-After`. |
+| **Server pages, client views** | Post, community and profile routes are thin server components that generate metadata, return real `404`s and render a client view; a per-request `cache()` shares one lookup between metadata and page. |
 | **Background jobs on Trigger.dev** | Serverless functions can't run cron or long jobs reliably. Trigger.dev provides schedules, retries, idempotency keys and run logs, and it deploys separately from the web app. |
 | **Neon + Prisma driver adapter** | Serverless Postgres over WebSockets works in both Vercel functions and Trigger.dev workers. |
 
@@ -229,7 +233,7 @@ Every variable is documented in [`.env.example`](.env.example).
 |---|---|
 | `npm run dev` | Start the dev server (Turbopack) |
 | `npm run build` | Generate the Prisma client and build for production |
-| `npm run lint` / `npm run test` | ESLint / Vitest |
+| `npm run lint` / `npm run typecheck` / `npm run test` | ESLint / TypeScript / Vitest |
 | `npm run db:migrate` | Apply Prisma migrations |
 | `npm run db:studio` | Browse the database in Prisma Studio |
 | `npm run bot:once -- [slug] [--force]` | Run the community bot once, locally |
@@ -240,6 +244,19 @@ Every variable is documented in [`.env.example`](.env.example).
 
 - **Web app**: Vercel. Set the same variables as `.env`, with `AUTH_URL` set to your production URL, and add `<AUTH_URL>/api/auth/callback/google` to the Google OAuth client.
 - **Bot**: `npx trigger.dev deploy`, then set `DATABASE_URL` and `OPENAI_API_KEY` in the Trigger.dev dashboard (Production).
+
+---
+
+## Testing & CI
+
+Unit tests (Vitest) cover the parts where bugs would be subtle or costly:
+
+- **Ranking**: hot score ordering, rank thresholds, vote deltas, slugs
+- **Community bot**: RSS / Atom / dev.to / Hacker News parsing, the duplicate and freshness filters, failing-feed tolerance, and the LLM writer (with a mocked OpenAI client)
+- **Image resolution**: source-image priority, `og:image` parsing, and URL safety (no private or local addresses)
+- **Rate limiting**: limits, `429` + `Retry-After`, messages
+
+GitHub Actions runs typecheck, lint, tests and a production build on every push and pull request ([`ci.yml`](.github/workflows/ci.yml)).
 
 ---
 

@@ -1,64 +1,37 @@
-"use client";
-
-import { use, useEffect, useState } from "react";
-import { UserXIcon } from "lucide-react";
-import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
-import { useProfileStore } from "@/features/profile/store/useProfileStore";
-import { ProfileHeader } from "@/features/profile/components/ProfileHeader";
-import { ProfilePostsFeed } from "@/features/profile/components/ProfilePostsFeed";
-import { ProfileCommunities } from "@/features/profile/components/ProfileCommunities";
-import { EditProfileModal } from "@/features/profile/components/EditProfileModal";
-import { Skeleton } from "@/shared/components/ui/Skeleton";
-import { EmptyState } from "@/shared/components/ui/EmptyState";
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { getProfileForPage } from "@/server/pageData";
+import { ProfilePageView } from "@/features/profile/components/ProfilePageView";
+import { toExcerpt } from "@/shared/constants/site";
 
 interface ProfilePageProps {
   params: Promise<{ username: string }>;
 }
 
-export default function ProfilePage({ params }: ProfilePageProps) {
-  const { username } = use(params);
-  const { user } = useCurrentUser();
-  const { profile, profileLoading, profileNotFound, getProfile, reset, ownScore, getOwnScore } = useProfileStore();
-  const [editOpen, setEditOpen] = useState(false);
+export async function generateMetadata({ params }: ProfilePageProps): Promise<Metadata> {
+  const { username } = await params;
+  const profile = await getProfileForPage(username);
+  if (!profile) return { title: "User not found", robots: { index: false } };
 
-  const isOwnProfile = user?.username === username;
+  const description =
+    toExcerpt(profile.bio) ??
+    `${profile.displayName} on Connexus · ${profile.stats.postCount} posts · ${profile.stats.karma} karma`;
+  return {
+    title: `${profile.displayName} (u/${profile.username})`,
+    description,
+    alternates: { canonical: `/u/${profile.username}` },
+    openGraph: {
+      type: "profile",
+      title: `${profile.displayName} (u/${profile.username})`,
+      description,
+      images: profile.avatarUrl ? [{ url: profile.avatarUrl, alt: profile.displayName }] : undefined,
+    },
+    twitter: { card: "summary" },
+  };
+}
 
-  useEffect(() => {
-    reset();
-    getProfile(username);
-  }, [username, getProfile, reset]);
-
-  useEffect(() => {
-    if (isOwnProfile) getOwnScore();
-  }, [isOwnProfile, getOwnScore]);
-
-  if (profileLoading || (!profile && !profileNotFound)) {
-    return (
-      <div className="mx-auto max-w-4xl space-y-3">
-        <Skeleton className="h-40 w-full" />
-        <Skeleton className="h-40 w-full" />
-      </div>
-    );
-  }
-
-  if (!profile) {
-    return (
-      <div className="mx-auto max-w-xl">
-        <EmptyState icon={UserXIcon} title="User not found" description="This account doesn't exist." />
-      </div>
-    );
-  }
-
-  return (
-    <div className="mx-auto flex max-w-4xl flex-col gap-4">
-      <ProfileHeader profile={profile} isOwnProfile={isOwnProfile} ownScore={ownScore} onEdit={() => setEditOpen(true)} />
-
-      <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[1fr_280px]">
-        <ProfilePostsFeed username={username} />
-        <ProfileCommunities communities={profile.communities} />
-      </div>
-
-      {editOpen && <EditProfileModal profile={profile} onClose={() => setEditOpen(false)} />}
-    </div>
-  );
+export default async function ProfilePage({ params }: ProfilePageProps) {
+  const { username } = await params;
+  if (!(await getProfileForPage(username))) notFound();
+  return <ProfilePageView username={username} />;
 }

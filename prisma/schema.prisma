@@ -171,6 +171,13 @@ model post_engagements {
   @@unique([postId, viewerKey, kind])
 }
 
+/// Fixed-window counters for per-user rate limits (key = "<action>:<userId>").
+model rate_limits {
+  key     String   @id
+  count   Int
+  resetAt DateTime
+}
+
 model users {
   id                                                     String              @id
   username                                               String              @unique

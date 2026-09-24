@@ -56,7 +56,8 @@ async function findPageImage(pageUrl: string): Promise<string | undefined> {
         html.match(new RegExp(`<meta[^>]+content=["']([^"']+)["'][^>]*(?:property|name)=["']${key}["']`, "i"))?.[1];
 
     const found = meta("og:image:secure_url") ?? meta("og:image") ?? meta("twitter:image");
-    return toSafeUrl(found?.replace(/&amp;/g, "&"), res.url) ?? undefined;
+    // Resolve relative URLs against the final (post-redirect) page URL.
+    return toSafeUrl(found?.replace(/&amp;/g, "&"), res.url || safeUrl) ?? undefined;
 }
 
 /** Reads the page only up to </head> (or a size cap); meta tags live there. */

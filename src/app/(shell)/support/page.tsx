@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { BookOpenIcon, BugIcon, LightbulbIcon, type LucideIcon } from "lucide-react";
 
-export const metadata: Metadata = { title: "Support · Connexus" };
+export const metadata: Metadata = { title: "Support" };
 
 const REPO_URL = "https://github.com/kashyapkrlucky/connexus";
 

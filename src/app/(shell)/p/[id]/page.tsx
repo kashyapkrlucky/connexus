@@ -1,73 +1,37 @@
-"use client";
-
-import { use, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { FileXIcon } from "lucide-react";
-import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
-import { usePostStore } from "@/features/post/store/usePostStore";
-import { PostCard } from "@/features/home/components/PostCard";
-import { CommentSection } from "@/features/post/components/CommentSection";
-import { Skeleton } from "@/shared/components/ui/Skeleton";
-import { EmptyState } from "@/shared/components/ui/EmptyState";
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { getPostForPage } from "@/server/pageData";
+import { PostPageView } from "@/features/post/components/PostPageView";
+import { toExcerpt } from "@/shared/constants/site";
 
 interface PostPageProps {
   params: Promise<{ id: string }>;
 }
 
-export default function PostPage({ params }: PostPageProps) {
-  const { id } = use(params);
-  const router = useRouter();
-  const { user, isAuthenticated } = useCurrentUser();
-  const { post, postLoading, postNotFound, getPost, reset, votePost, deletePost, comments, commentsLoading, getComments } =
-    usePostStore();
+export async function generateMetadata({ params }: PostPageProps): Promise<Metadata> {
+  const { id } = await params;
+  const post = await getPostForPage(id);
+  if (!post) return { title: "Post not found", robots: { index: false } };
 
-  useEffect(() => {
-    reset();
-    getPost(id);
-    getComments(id);
-  }, [id, getPost, getComments, reset]);
+  const description = toExcerpt(post.content) ?? `A post in c/${post.community.slug}`;
+  return {
+    title: `${post.title} · c/${post.community.slug}`,
+    description,
+    alternates: { canonical: `/p/${post.id}` },
+    robots: post.community.visibility === "PRIVATE" ? { index: false, follow: false } : undefined,
+    openGraph: {
+      type: "article",
+      title: post.title,
+      description,
+      publishedTime: post.createdAt,
+      authors: [`u/${post.author.username}`],
+      section: `c/${post.community.slug}`,
+    },
+  };
+}
 
-  if (postLoading || (!post && !postNotFound)) {
-    return (
-      <div className="mx-auto max-w-2xl space-y-3">
-        <Skeleton className="h-64 w-full" />
-        <Skeleton className="h-40 w-full" />
-      </div>
-    );
-  }
-
-  if (!post) {
-    return (
-      <div className="mx-auto max-w-xl">
-        <EmptyState
-          icon={FileXIcon}
-          title="Post not found"
-          description="It may have been deleted, or you don't have access to it."
-        />
-      </div>
-    );
-  }
-
-  const canDelete = post.author.username === user?.username;
-
-  async function handleDelete() {
-    if (!post) return;
-    if (!window.confirm("Delete this post? This can't be undone.")) return;
-    const ok = await deletePost(post.id);
-    if (ok) router.push(`/c/${post.community.slug}`);
-  }
-
-  return (
-    <div className="mx-auto flex max-w-2xl flex-col gap-4">
-      <PostCard post={post} onVote={votePost} detailed canDelete={canDelete} onDelete={handleDelete} />
-      <CommentSection
-        postId={post.id}
-        totalCount={post.commentCount}
-        comments={comments}
-        commentsLoading={commentsLoading}
-        currentUsername={user?.username ?? null}
-        isAuthenticated={isAuthenticated}
-      />
-    </div>
-  );
+export default async function PostPage({ params }: PostPageProps) {
+  const { id } = await params;
+  if (!(await getPostForPage(id))) notFound();
+  return <PostPageView id={id} />;
 }
