@@ -42,7 +42,7 @@ export function CommunityPostsFeed({ slug }: CommunityPostsFeedProps) {
   const totalPages = Math.max(1, Math.ceil(postsTotal / postsPageSize));
 
   return (
-    <div className="flex flex-col gap-3 max-w-xl">
+    <div className="flex min-w-0 max-w-xl flex-col gap-3">
       <Tabs items={SORT_TABS} value={postsSort} onChange={(v) => setPostsSort(v as PostSort)} />
 
       {postsLoading ? (

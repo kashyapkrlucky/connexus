@@ -41,7 +41,7 @@ export function PostCard({ post, onVote, detailed = false, canDelete = false, on
 
     return (
         <div className="rounded-xl border border-gray-800 bg-gray-900 p-4">
-            <header className="flex items-center gap-2 text-xs text-gray-400">
+            <header className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-400 [&>*]:whitespace-nowrap">
                 <Link href={`/c/${post.community.slug}`} className="flex items-center gap-1.5 hover:text-gray-200">
                     <Avatar name={post.community.name} src={post.community.iconUrl} size={20} />
                     <span className="font-medium text-gray-300">c/{post.community.slug}</span>
@@ -69,7 +69,10 @@ export function PostCard({ post, onVote, detailed = false, canDelete = false, on
                 )}
 
                 {post.content && (
-                    <p className={cn("mt-1.5 whitespace-pre-line text-sm text-gray-400", !detailed && "line-clamp-4")}>{post.content}</p>
+                    <p className={cn("mt-1.5 whitespace-pre-line text-sm text-gray-400", !detailed && "line-clamp-4")}>
+                        {/* Feed cards preview the first paragraph; the detail page shows everything. */}
+                        {detailed ? post.content : post.content.split(/\n\s*\n/)[0]}
+                    </p>
                 )}
 
                 {post.sourceUrl && (

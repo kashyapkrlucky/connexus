@@ -11,9 +11,9 @@ export default function ShellLayout({
         <div className="flex flex-1 flex-col">
             <TopBar />
             <div className="mx-auto flex w-full max-w-7xl flex-1">
-                <SideBar />
+                <SideBar className="hidden lg:block" />
 
-                <main className="min-w-0 flex-1 p-4">
+                <main className="min-w-0 flex-1 p-3 sm:p-4">
                     {children}
                 </main>
             </div>

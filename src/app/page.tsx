@@ -37,9 +37,9 @@ export default function Home() {
       <TopBar />
 
       <div className="mx-auto flex w-full max-w-7xl flex-1">
-        <SideBar />
+        <SideBar className="hidden lg:block" />
 
-        <main className="flex flex-1 flex-col p-4 gap-4 max-w-2xl">
+        <main className="flex min-w-0 max-w-2xl flex-1 flex-col gap-4 p-3 sm:p-4">
           <Tabs items={TABS} value={sort} onChange={(v) => setSort(v as PostSort)} />
 
           {postsLoading ? (
@@ -59,7 +59,7 @@ export default function Home() {
           )}
         </main>
 
-        <RightSidePanel />
+        <RightSidePanel className="hidden xl:block" />
       </div>
     </div>
   );

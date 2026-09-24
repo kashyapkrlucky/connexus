@@ -5,16 +5,18 @@ import { PenSquareIcon } from "lucide-react";
 import Link from "next/link";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import { UserMenu } from "@/features/auth/components/UserMenu";
+import { MobileNav } from "./MobileNav";
 
 export function TopBar() {
 
   const { user, isLoading } = useCurrentUser();
   return (
     <header className="flex h-14 w-full shrink-0 items-center border-b border-border/40 bg-surface sticky top-0 z-50">
-      <div className="mx-auto flex w-full max-w-7xl items-center gap-4 px-4">
-        <Link href="/">
+      <div className="mx-auto flex w-full max-w-7xl items-center gap-2 px-3 sm:gap-4 sm:px-4">
+        <MobileNav />
+        <Link href="/" className="shrink-0">
           <Image
-            className="h-11 w-32"
+            className="h-9 w-26 sm:h-11 sm:w-32"
             src="/logo.png"
             alt="Connexus logo"
             width={120}
@@ -26,7 +28,7 @@ export function TopBar() {
         <input
           type="search"
           placeholder="Search"
-          className="w-full max-w-sm rounded border border-border/40 bg-background px-3 py-1.5 text-sm text-foreground placeholder:text-foreground/40 focus:border-accent focus:outline-none"
+          className="hidden w-full max-w-sm rounded border md:block border-border/40 bg-background px-3 py-1.5 text-sm text-foreground placeholder:text-foreground/40 focus:border-accent focus:outline-none"
         />
 
         <div className="ml-auto flex items-center gap-2">
