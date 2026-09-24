@@ -3,7 +3,7 @@
 import { use, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { FileXIcon } from "lucide-react";
-import useAuthStore from "@/features/auth/store/useAuthStore";
+import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import { usePostStore } from "@/features/post/store/usePostStore";
 import { PostCard } from "@/features/home/components/PostCard";
 import { CommentSection } from "@/features/post/components/CommentSection";
@@ -17,7 +17,7 @@ interface PostPageProps {
 export default function PostPage({ params }: PostPageProps) {
   const { id } = use(params);
   const router = useRouter();
-  const { user, isAuthenticated } = useAuthStore();
+  const { user, isAuthenticated } = useCurrentUser();
   const { post, postLoading, postNotFound, getPost, reset, votePost, deletePost, comments, commentsLoading, getComments } =
     usePostStore();
 

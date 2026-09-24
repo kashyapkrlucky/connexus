@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { getUserFromHeaders } from "@/features/auth/utils";
+import { getCurrentUserId } from "@/features/auth/server";
 import { CommentService } from "@/server/services/CommentService";
 import { handleApiError, jsonOk } from "@/server/utils/response";
 
@@ -9,7 +9,7 @@ export async function GET(
 ) {
     try {
         const { id } = await params;
-        const viewerId = await getUserFromHeaders(req);
+        const viewerId = await getCurrentUserId();
         const comments = await CommentService.getCommentsForPost(id, viewerId);
         return jsonOk(comments);
     } catch (error) {

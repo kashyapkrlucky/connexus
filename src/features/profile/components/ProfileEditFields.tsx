@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
+import { useSession } from "next-auth/react";
 import { AvatarUploader } from "@/shared/components/ui/AvatarUploader";
 import { Input } from "@/shared/components/ui/Input";
 import { Textarea } from "@/shared/components/ui/Textarea";
@@ -20,6 +21,7 @@ interface ProfileEditFieldsProps {
 // settings page), so useState initializers below always start from real data.
 export function ProfileEditFields({ profile, onSaved, submitLabel = "Save changes", extraActions }: ProfileEditFieldsProps) {
   const { updating, updateProfile } = useProfileStore();
+  const { update: refreshSession } = useSession();
   const [displayName, setDisplayName] = useState(profile.displayName);
   const [bio, setBio] = useState(profile.bio ?? "");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(profile.avatarUrl);
@@ -34,7 +36,10 @@ export function ProfileEditFields({ profile, onSaved, submitLabel = "Save change
       bio: bio.trim() || undefined,
       avatarUrl: avatarUrl ?? undefined,
     });
-    if (ok) onSaved?.();
+    if (!ok) return;
+    // Keep the name/avatar shown in the top bar in sync with the edit.
+    await refreshSession();
+    onSaved?.();
   }
 
   return (

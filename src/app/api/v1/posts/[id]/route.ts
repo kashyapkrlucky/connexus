@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { getUserFromHeaders } from "@/features/auth/utils";
+import { getCurrentUserId } from "@/features/auth/server";
 import { PostService } from "@/server/services/PostService";
 import { ApiError, handleApiError, jsonOk } from "@/server/utils/response";
 
@@ -9,7 +9,7 @@ export async function GET(
 ) {
     try {
         const { id } = await params;
-        const viewerId = await getUserFromHeaders(req);
+        const viewerId = await getCurrentUserId();
         const post = await PostService.getPostById(id, viewerId);
         if (!post) throw new ApiError("Post not found", 404);
         return jsonOk(post);
@@ -24,7 +24,7 @@ export async function DELETE(
 ) {
     try {
         const { id } = await params;
-        const userId = await getUserFromHeaders(req);
+        const userId = await getCurrentUserId();
         if (!userId) throw new ApiError("Unauthorized", 401);
 
         await PostService.deletePost(id, userId);

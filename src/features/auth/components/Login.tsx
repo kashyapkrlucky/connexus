@@ -3,7 +3,7 @@ import { useState } from "react";
 import { LogInIcon } from "lucide-react";
 import { Modal } from "@/shared/components/ui/Modal";
 import { Button } from "@/shared/components/ui/Button";
-import { LoginActions } from "./LoginActions";
+import { GoogleSignInButton } from "./GoogleSignInButton";
 
 export function Login() {
   const [modalOpen, setModalOpen] = useState(false);
@@ -15,7 +15,12 @@ export function Login() {
       </Button>
 
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Sign in to Connexus">
-        <LoginActions />
+        <div className="flex flex-col gap-4">
+          <p className="text-sm text-gray-400">
+            Join communities built for real connections — sign in to post, comment, and vote.
+          </p>
+          <GoogleSignInButton />
+        </div>
       </Modal>
     </>
   );

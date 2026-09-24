@@ -2,7 +2,7 @@
 
 import { use, useEffect, useState } from "react";
 import { UserXIcon } from "lucide-react";
-import useAuthStore from "@/features/auth/store/useAuthStore";
+import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import { useProfileStore } from "@/features/profile/store/useProfileStore";
 import { ProfileHeader } from "@/features/profile/components/ProfileHeader";
 import { ProfilePostsFeed } from "@/features/profile/components/ProfilePostsFeed";
@@ -17,7 +17,7 @@ interface ProfilePageProps {
 
 export default function ProfilePage({ params }: ProfilePageProps) {
   const { username } = use(params);
-  const { user } = useAuthStore();
+  const { user } = useCurrentUser();
   const { profile, profileLoading, profileNotFound, getProfile, reset, ownScore, getOwnScore } = useProfileStore();
   const [editOpen, setEditOpen] = useState(false);
 

@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { getUserFromHeaders } from "@/features/auth/utils";
+import { getCurrentUserId } from "@/features/auth/server";
 import { CommunityService } from "@/server/services/CommunityService";
 import { inviteMemberSchema } from "@/server/schemas/community.schema";
 import { MEMBERS_PAGE_SIZE } from "@/shared/constants";
@@ -11,7 +11,7 @@ export async function GET(
 ) {
     try {
         const { slug } = await params;
-        const viewerId = await getUserFromHeaders(req);
+        const viewerId = await getCurrentUserId();
         const { searchParams } = new URL(req.url);
         const page = Math.max(1, Number(searchParams.get("page")) || 1);
         const pageSize = Math.min(50, Math.max(1, Number(searchParams.get("pageSize")) || MEMBERS_PAGE_SIZE));
@@ -29,7 +29,7 @@ export async function POST(
 ) {
     try {
         const { slug } = await params;
-        const userId = await getUserFromHeaders(req);
+        const userId = await getCurrentUserId();
         if (!userId) throw new ApiError("Unauthorized", 401);
 
         const body = await req.json();

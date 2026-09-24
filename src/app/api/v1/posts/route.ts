@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { getUserFromHeaders } from "@/features/auth/utils";
+import { getCurrentUserId } from "@/features/auth/server";
 import { PostService } from "@/server/services/PostService";
 import { createPostSchema, listPostsQuerySchema } from "@/server/schemas/post.schema";
 import { ApiError, handleApiError, jsonOk } from "@/server/utils/response";
@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
     try {
         const { searchParams } = new URL(req.url);
         const query = listPostsQuerySchema.parse(Object.fromEntries(searchParams));
-        const viewerId = await getUserFromHeaders(req);
+        const viewerId = await getCurrentUserId();
         const posts = await PostService.listPosts(query, viewerId);
         return jsonOk(posts);
     } catch (error) {
@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
     try {
-        const userId = await getUserFromHeaders(req);
+        const userId = await getCurrentUserId();
         if (!userId) throw new ApiError("Unauthorized", 401);
 
         const body = await req.json();

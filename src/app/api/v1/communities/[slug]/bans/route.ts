@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { getUserFromHeaders } from "@/features/auth/utils";
+import { getCurrentUserId } from "@/features/auth/server";
 import { CommunityService } from "@/server/services/CommunityService";
 import { banMemberSchema } from "@/server/schemas/community.schema";
 import { ApiError, handleApiError, jsonOk } from "@/server/utils/response";
@@ -10,7 +10,7 @@ export async function GET(
 ) {
     try {
         const { slug } = await params;
-        const userId = await getUserFromHeaders(req);
+        const userId = await getCurrentUserId();
         if (!userId) throw new ApiError("Unauthorized", 401);
 
         const bans = await CommunityService.listBans(slug, userId);
@@ -26,7 +26,7 @@ export async function POST(
 ) {
     try {
         const { slug } = await params;
-        const userId = await getUserFromHeaders(req);
+        const userId = await getCurrentUserId();
         if (!userId) throw new ApiError("Unauthorized", 401);
 
         const body = await req.json();

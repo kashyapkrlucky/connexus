@@ -1,4 +1,4 @@
-import { getUserFromHeaders } from "@/features/auth/utils";
+import { getCurrentUserId } from "@/features/auth/server";
 import { NextRequest } from "next/server";
 import { CommunityService } from "@/server/services/CommunityService";
 import { createCommunitySchema, listCommunitiesQuerySchema } from "@/server/schemas/community.schema";
@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
     try {
         const { searchParams } = new URL(req.url);
         const query = listCommunitiesQuerySchema.parse(Object.fromEntries(searchParams));
-        const viewerId = await getUserFromHeaders(req);
+        const viewerId = await getCurrentUserId();
         const communities = await CommunityService.getCommunities(query, viewerId);
         return jsonOk({ communities });
     } catch (error) {
@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
     try {
-        const userId = await getUserFromHeaders(req);
+        const userId = await getCurrentUserId();
         if (!userId) throw new ApiError("Unauthorized", 401);
 
         const body = await req.json();

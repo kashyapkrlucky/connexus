@@ -1,12 +1,12 @@
 import { NextRequest } from "next/server";
-import { getUserFromHeaders } from "@/features/auth/utils";
+import { getCurrentUserId } from "@/features/auth/server";
 import UserService from "@/server/services/UserService";
 import { updateProfileSchema } from "@/server/schemas/user.schema";
 import { ApiError, handleApiError, jsonOk } from "@/server/utils/response";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
     try {
-        const userId = await getUserFromHeaders(req);
+        const userId = await getCurrentUserId();
         if (!userId) throw new ApiError("Unauthorized", 401);
 
         const profile = await UserService.getProfileById(userId);
@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
 
 export async function PATCH(req: NextRequest) {
     try {
-        const userId = await getUserFromHeaders(req);
+        const userId = await getCurrentUserId();
         if (!userId) throw new ApiError("Unauthorized", 401);
 
         const body = await req.json();

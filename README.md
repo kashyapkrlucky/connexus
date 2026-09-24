@@ -31,7 +31,7 @@ Connexus is a Reddit-style community platform — create or join communities, po
 - An 8-tier rank ladder (Newcomer → Contributor → Explorer → Pathfinder → Trailblazer → Luminary → Legend → Mythic), each with its own color, shown as a badge with progress to the next rank
 
 **Accounts**
-- Sign in via Atlas ID (OAuth) or continue as a guest
+- Sign in with Google
 - Editable public profile (avatar, display name, bio) with post history and rank
 
 ---
@@ -58,14 +58,14 @@ flowchart TD
 
     Services --> Supabase["Supabase Storage<br/>(post/community images)"]
     Services --> News["Google News RSS<br/>(10 min in-memory cache)"]
-    Routes --> Auth["Atlas ID OAuth<br/>JWT verified via jose"]
+    Routes --> Auth["Auth.js<br/>Google sign-in"]
 ```
 
 ### Core user flow
 
 ```mermaid
 flowchart LR
-    A["Sign in<br/>Atlas ID or Guest"] --> B{Browse}
+    A["Sign in<br/>with Google"] --> B{Browse}
     B --> C["Home feed<br/>your communities"]
     B --> D["Explore / Popular /<br/>Trending"]
     B --> E["Search"]
@@ -110,7 +110,7 @@ Full schema lives in [`prisma/schema.prisma`](prisma/schema.prisma).
 | Client state | Zustand |
 | Database | PostgreSQL (Neon serverless) |
 | ORM | Prisma |
-| Auth | Atlas ID OAuth, JWT verification via `jose` |
+| Auth | Auth.js (NextAuth v5) with Google, JWT session cookie |
 | File storage | Supabase Storage |
 | Validation | Zod |
 | Icons | Lucide |
@@ -151,7 +151,7 @@ src/
 - Node.js 20+
 - A PostgreSQL database (this project targets [Neon](https://neon.tech))
 - A Supabase project (for image storage)
-- An Atlas ID OAuth client (for sign-in)
+- A Google OAuth client (for sign-in), with redirect URI `<AUTH_URL>/api/auth/callback/google`
 
 ### Setup
 
@@ -165,10 +165,10 @@ Create a `.env` file with:
 |---|---|
 | `DATABASE_URL` | Pooled Postgres connection string (Prisma) |
 | `DIRECT_URL` | Direct Postgres connection string (migrations) |
-| `JWT_PUBLIC_KEY` | Public key used to verify Atlas ID access tokens |
-| `NEXT_PUBLIC_AUTH_URL` | Atlas ID auth service base URL |
-| `NEXT_PUBLIC_CLIENT_ID` | Atlas ID OAuth client ID |
-| `NEXT_PUBLIC_API_URL` | Base URL this app's own API is served from |
+| `AUTH_SECRET` | Secret that encrypts the session cookie (`npx auth secret`) |
+| `AUTH_URL` | Public URL of this app, e.g. `http://localhost:3000` |
+| `GOOGLE_CLIENT_ID` | Google OAuth client ID |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret |
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key |
 | `SUPABASE_SECRET_KEY` | Supabase service key (server-side uploads only) |

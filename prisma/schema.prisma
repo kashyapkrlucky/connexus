@@ -143,6 +143,7 @@ model posts {
 model users {
   id                                                     String              @id
   username                                               String              @unique
+  email                                                  String?             @unique
   displayName                                            String
   avatarUrl                                              String?
   bio                                                    String?

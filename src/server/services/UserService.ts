@@ -1,4 +1,4 @@
-import { IUser } from "@/features/auth/types";
+import { randomUUID } from "crypto";
 import { prisma } from "@/infra/db/connect";
 import { UpdateProfileInput } from "../schemas/user.schema";
 import { UserProfileDTO, UserScoreDTO } from "../types/user.types";
@@ -7,25 +7,30 @@ import { ApiError } from "../utils/response";
 import { getRankForXp, XP_WEIGHTS } from "../utils/rank";
 
 export class UserService {
-    static async create(user: IUser) {
-        const existingUser = await prisma.users.findUnique({
-            where: {
-                id: user.id,
-            },
-        });
-        if (existingUser) {
-            return existingUser;
-        }
-        const userData = await prisma.users.create({
+    /** Returns the user linked to this Google email, creating one on first sign-in. */
+    static async findOrCreateFromGoogle(profile: { email: string; name: string; image: string | null }) {
+        const existing = await prisma.users.findUnique({ where: { email: profile.email } });
+        if (existing) return existing;
+
+        return prisma.users.create({
             data: {
-                id: user.id,
-                displayName: user.name,
-                username: user.username,
-                avatarUrl: user.avatar,
+                id: randomUUID(),
+                email: profile.email,
+                username: await UserService.generateUsername(profile.email),
+                displayName: profile.name,
+                avatarUrl: profile.image,
                 bio: "",
             },
         });
-        return userData;
+    }
+
+    private static async generateUsername(email: string) {
+        const base = email.split("@")[0].toLowerCase().replace(/[^a-z0-9_]/g, "").slice(0, 20) || "user";
+        let candidate = base;
+        while (await prisma.users.findUnique({ where: { username: candidate } })) {
+            candidate = `${base}${Math.floor(1000 + Math.random() * 9000)}`;
+        }
+        return candidate;
     }
 
     static async getUserById(id: string) {

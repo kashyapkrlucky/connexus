@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { getUserFromHeaders } from "@/features/auth/utils";
+import { getCurrentUserId } from "@/features/auth/server";
 import { CommunityService } from "@/server/services/CommunityService";
 import { updateMemberRoleSchema } from "@/server/schemas/community.schema";
 import { ApiError, handleApiError, jsonOk } from "@/server/utils/response";
@@ -10,7 +10,7 @@ export async function PATCH(
 ) {
     try {
         const { slug, userId: targetUserId } = await params;
-        const actorId = await getUserFromHeaders(req);
+        const actorId = await getCurrentUserId();
         if (!actorId) throw new ApiError("Unauthorized", 401);
 
         const body = await req.json();
@@ -28,7 +28,7 @@ export async function DELETE(
 ) {
     try {
         const { slug, userId: targetUserId } = await params;
-        const actorId = await getUserFromHeaders(req);
+        const actorId = await getCurrentUserId();
         if (!actorId) throw new ApiError("Unauthorized", 401);
 
         await CommunityService.removeMember(slug, actorId, targetUserId);

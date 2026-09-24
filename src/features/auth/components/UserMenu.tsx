@@ -2,11 +2,9 @@
 
 import { LogOutIcon, SettingsIcon, UserIcon } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
-import useAuthStore from "../store/useAuthStore";
-import { ACCESS_TOKEN_KEY, USER_KEY } from "../constants";
+import { signOut } from "next-auth/react";
+import { useCurrentUser } from "../hooks/useCurrentUser";
 import { Avatar } from "@/shared/components/ui/Avatar";
 
 const MENU_ITEMS = [
@@ -15,18 +13,13 @@ const MENU_ITEMS = [
 ] as const;
 
 export function UserMenu() {
-    const { user, logout } = useAuthStore();
-    const router = useRouter();
+    const { user } = useCurrentUser();
     const [menuOpen, setMenuOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
 
     const handleLogout = () => {
         setMenuOpen(false);
-        logout();
-        localStorage.removeItem(ACCESS_TOKEN_KEY);
-        localStorage.removeItem(USER_KEY);
-        toast.success("Signed out.");
-        router.push("/");
+        signOut({ redirectTo: "/" });
     };
 
     useEffect(() => {
@@ -51,14 +44,14 @@ export function UserMenu() {
                 onClick={() => setMenuOpen((v) => !v)}
                 className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1 transition-colors hover:bg-gray-800"
             >
-                <Avatar name={user.name} src={user.avatar} size={28} />
+                <Avatar name={user.name ?? user.username} src={user.image} size={28} />
                 <span className="hidden text-sm font-medium text-gray-200 sm:inline">{user.name}</span>
             </button>
 
             {menuOpen && (
                 <div className="absolute right-0 top-full z-20 mt-2 w-56 overflow-hidden rounded-2xl border border-gray-700 bg-gray-900 shadow-lg shadow-black/40">
                     <div className="flex items-center gap-2.5 border-b border-gray-800 px-3 py-3">
-                        <Avatar name={user.name} src={user.avatar} size={36} />
+                        <Avatar name={user.name ?? user.username} src={user.image} size={36} />
                         <div className="min-w-0">
                             <p className="truncate text-sm font-medium text-gray-100">{user.name}</p>
                             <p className="truncate text-xs text-gray-500">u/{user.username}</p>
